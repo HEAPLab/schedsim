@@ -1,0 +1,1 @@
+<simulation><software><tasks><periodictask id="1" period="10" deadline="-1" wcet="2" /><periodictask id="2" period="60" deadline="-1" wcet="10" /><periodictask id="3" period="30" deadline="-1" wcet="5" /></tasks></software></simulation>
