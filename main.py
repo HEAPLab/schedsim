@@ -2,7 +2,8 @@
 import sys
 import os
 
-from PySide2.QtWidgets import QApplication, QMainWindow, QDialog, QTableWidgetItem, QFileDialog, QMessageBox, QHeaderView
+from PySide2.QtWidgets import QApplication, QMainWindow, QDialog, QTableWidgetItem, QFileDialog, QMessageBox, QHeaderView, QAction, QToolBar
+from PySide2.QtGui import QIcon
 from PySide2.QtCore import QFile
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtCore import Slot, Signal
@@ -126,7 +127,6 @@ class SchedSim(QMainWindow):
         self.tasks = []
 
     def runScheduler(self):
-        self.window.errorLbl.setText('')
         schedClass = Scheduler.schedulers[
             self.window.schedulersDropdown.currentIndex()]
         deadlineDefined = True
@@ -140,16 +140,22 @@ class SchedSim(QMainWindow):
                 sched = schedClass(self.tasks)
                 try:
                     sched.execute(int(self.window.endTimeInput.text()))
+                    self.confirm_dialog = QMessageBox()
+                    self.confirm_dialog.setText("out.txt succesfully written")
+                    self.confirm_dialog.show()
                 except Exception as e:
                     self.error_dialog = QMessageBox()
                     self.error_dialog.setText("Cannot write output file:\n" +
                                               str(e))
                     self.error_dialog.show()
             else:
-                self.window.errorLbl.setText('Schedule not feasible')
+                self.error_dialog = QMessageBox()
+                self.error_dialog.setText("Schedule not feasible")
+                self.error_dialog.show()
         else:
-            self.window.errorLbl.setText(
-                'All deadlines must be defined for selected scheduler')
+            self.error_dialog = QMessageBox()
+            self.error_dialog.setText('All deadlines must be defined for selected scheduler')
+            self.error_dialog.show()
 
     def updateEndTimeInput(self):
         if self.window.majorCycleCB.checkState() and len(self.tasks) > 0:
@@ -179,8 +185,8 @@ class SchedSim(QMainWindow):
             self.updateEndTimeInput()
             if not self.window.runBtn.isEnabled():
                 self.window.runBtn.setEnabled(True)
-            if not self.window.exportBtn.isEnabled():
-                self.window.exportBtn.setEnabled(True)
+            if not self.window.exportSched.isEnabled():
+                self.window.exportSched.setEnabled(True)
 
     @Slot(object)
     def editTask(self, task):
@@ -212,27 +218,29 @@ class SchedSim(QMainWindow):
         self.addDialog = AddNewDialog(
             self, self.tasks, Scheduler.schedulers[
                 self.window.schedulersDropdown.currentIndex()].deadlineNeeded)
-        r = self.window.tableWidget.selectedRanges()[0]
-        dn = r.bottomRow()
-        up = r.topRow()
-        if dn == up:
-            self.addDialog.edit(self.tasks[dn])
-            self.addDialog.signal_task.connect(self.editTask)
-            self.addDialog.show()
+        if len(self.window.tableWidget.selectedRanges())>0:
+            r = self.window.tableWidget.selectedRanges()[0]
+            dn = r.bottomRow()
+            up = r.topRow()
+            if dn == up:
+                self.addDialog.edit(self.tasks[dn])
+                self.addDialog.signal_task.connect(self.editTask)
+                self.addDialog.show()
 
     def removeTask(self):
-        r = self.window.tableWidget.selectedRanges()[0]
-        dn = r.bottomRow()
-        up = r.topRow()
-        for count in range(dn, up - 1, -1):
-            self.window.tableWidget.removeRow(count)
-        del self.tasks[up:dn + 1]
-        self.updateEndTimeInput()
-        if len(self.tasks) == 0:
-            if self.window.runBtn.isEnabled():
-                self.window.runBtn.setEnabled(False)
-            if self.window.exportBtn.isEnabled():
-                self.window.exportBtn.setEnabled(False)
+        if len(self.window.tableWidget.selectedRanges())>0:
+            r = self.window.tableWidget.selectedRanges()[0]
+            dn = r.bottomRow()
+            up = r.topRow()
+            for count in range(dn, up - 1, -1):
+                self.window.tableWidget.removeRow(count)
+            del self.tasks[up:dn + 1]
+            self.updateEndTimeInput()
+            if len(self.tasks) == 0:
+                if self.window.runBtn.isEnabled():
+                    self.window.runBtn.setEnabled(False)
+                if self.window.exportSched.isEnabled():
+                    self.window.exportSched.setEnabled(False)
 
     def initSchedulerDropdown(self, window):
         for i in Scheduler.schedulers:
@@ -265,30 +273,25 @@ class SchedSim(QMainWindow):
                 self.error_dialog.show()
 
     def exportSchedule(self):
-        dialog = QFileDialog(self)
-        dialog.setFileMode(QFileDialog.AnyFile)
-        dialog.setNameFilter('Schedules (*.xml)')
-        dialog.setViewMode(QFileDialog.List)
-        if dialog.exec_():
-            fileName = (dialog.selectedFiles())[0]
-            exp = re.compile('.*\.xml$', re.IGNORECASE)
-            if not (exp.match(fileName)):
-                fileName += '.xml'
-            try:
-                SchedIo.exportFile(self.tasks, fileName)
-            except Exception as e:
-                self.error_dialog = QMessageBox()
-                self.error_dialog.setText("Writing error:\n" + str(e))
-                self.error_dialog.show()
+        fileName = (QFileDialog.getSaveFileName(self, 'Save Lattice', '', "Schedules (*.xml)"))[0]
+        exp = re.compile('.*\.xml$', re.IGNORECASE)
+        if not (exp.match(fileName)):
+            fileName += '.xml'
+        try:
+            SchedIo.exportFile(self.tasks, fileName)
+        except Exception as e:
+            self.error_dialog = QMessageBox()
+            self.error_dialog.setText("Writing error:\n" + str(e))
+            self.error_dialog.show()
 
     def appendActionListeners(self, window):
-        window.addTask.clicked.connect(self.ShowNewDialog)
-        window.removeTask.clicked.connect(self.removeTask)
-        window.editTask.clicked.connect(self.ShowEditDialog)
+        window.addTask.triggered.connect(self.ShowNewDialog)
+        window.removeTask.triggered.connect(self.removeTask)
+        window.editTask.triggered.connect(self.ShowEditDialog)
         window.majorCycleCB.stateChanged.connect(self.majorCycleCBStatusChange)
         window.runBtn.clicked.connect(self.runScheduler)
-        window.importBtn.clicked.connect(self.importSchedule)
-        window.exportBtn.clicked.connect(self.exportSchedule)
+        window.importSched.triggered.connect(self.importSchedule)
+        window.exportSched.triggered.connect(self.exportSchedule)
 
     def load_ui(self):
         loader = QUiLoader()
@@ -297,12 +300,24 @@ class SchedSim(QMainWindow):
         ui_file.open(QFile.ReadOnly)
         self.window = loader.load(ui_file, self)
         ui_file.close()
-        self.window.errorLbl.setText("")
+
+        tb = self.addToolBar("Tasks")
+        self.window.addTask = QAction(QIcon("add.bmp"), "add", self)
+        self.window.removeTask = QAction(QIcon("remove.bmp") ,"remove", self)
+        self.window.editTask = QAction(QIcon("edit.bmp"), "edit", self)
+        self.window.importSched = QAction(QIcon("import.bmp"), "import", self)
+        self.window.exportSched = QAction(QIcon("export.bmp"), "export", self)
+
+        tb.addAction(self.window.addTask)
+        tb.addAction(self.window.removeTask)
+        tb.addAction(self.window.editTask)
+        tb.addAction(self.window.importSched)
+        tb.addAction(self.window.exportSched)
+
         self.initSchedulerDropdown(self.window)
         self.appendActionListeners(self.window)
         self.window.tableWidget.horizontalHeader().setSectionResizeMode(
             QHeaderView.Stretch)
-
 
 if __name__ == "__main__":
     app = QApplication([])
