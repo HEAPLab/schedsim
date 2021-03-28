@@ -278,7 +278,6 @@ class SchedSim(QMainWindow):
     def exportSchedule(self):
         if len(self.tasks)>0:
             fileNameArr = QFileDialog.getSaveFileName(self, 'Export task set', '', "Task set (*.xml)")
-            print(fileNameArr)
             if len(fileNameArr)>0:
                 fileName=fileNameArr[0]
                 if len(fileName)>0:
