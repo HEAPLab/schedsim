@@ -42,7 +42,8 @@ def exportFile(tasks, fileName):
 class SchedEventWriter:
     def __init__(self):
         #self._buffer=[]
-        self.out = open('out.txt', 'w')
+        filename='out.txt'
+        self.out = open(filename, 'w')
 
     def addSchedEvent(self, schedEvent):
         self.out.write(

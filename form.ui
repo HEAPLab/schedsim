@@ -93,7 +93,7 @@
      <item>
       <widget class="QCheckBox" name="majorCycleCB">
        <property name="text">
-        <string>Lenght=major cycle</string>
+        <string>Time=major cycle</string>
        </property>
        <property name="checked">
         <bool>true</bool>

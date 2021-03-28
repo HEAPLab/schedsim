@@ -12,12 +12,6 @@ class Scheduler:
     name = 'GenericScheduler'
     deadlineNeeded = True
 
-    @property
-    @classmethod
-    @abstractmethod
-    def name():
-        return NotImplementedError
-
     @abstractmethod
     def onTick(self):
         pass

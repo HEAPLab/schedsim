@@ -14,6 +14,13 @@ import Task
 import numpy as np
 import SchedIo
 
+def ShowErrorBox(errorStr):
+    messageBox=QMessageBox()
+    messageBox.setWindowTitle('Error')
+    messageBox.setIcon(QMessageBox.Critical)
+    messageBox.setText(errorStr)
+    messageBox.show()
+    return messageBox
 
 def isIdLegit(id, tasks):
     for task in tasks:
@@ -42,7 +49,7 @@ class AddNewDialog(QDialog):
             error = False
             if self.newTask and not isIdLegit(id, self.tasks):
                 error = True
-                errorStr += 'id is not unique'
+                errorStr += 'Id is not unique'
             deadlineInput = self.window.deadlineInput.text().strip()
             deadlineOk = False
             if len(deadlineInput) == 0 and not self.deadlineNeeded:
@@ -56,27 +63,25 @@ class AddNewDialog(QDialog):
                 error = True
                 if len(errorStr) > 0:
                     errorStr += '\n'
-                errorStr += 'wcet is greater than period'
+                errorStr += 'WCET is greater than period'
             if deadline != -1 and deadline < wcet:
                 error = True
                 if len(errorStr) > 0:
                     errorStr += '\n'
-                errorStr += 'deadline is earlier than wcet'
+                errorStr += 'Deadline is earlier than WCET'
             if id < 0 or wcet <= 0 or period <= 0 or (not deadlineOk
                                                       and deadline <= 0):
                 error = True
                 if len(errorStr) > 0:
                     errorStr += '\n'
-                errorStr += 'all fields must hold a positive value'
+                errorStr += 'All fields must hold a positive value'
         except ValueError:
             error = True
             if len(errorStr) > 0:
                 errorStr += '\n'
-            errorStr += 'all the fields must hold a numeric value'
+            errorStr += 'All the fields must hold a numeric value'
         if error:
-            self.error_dialog = QMessageBox()
-            self.error_dialog.setText(errorStr)
-            self.error_dialog.show()
+            self.error_dialog=ShowErrorBox(errorStr)
         else:
             newTask = Task.Task(id, wcet, period, deadline)
             self.signal_task.emit(newTask)
@@ -104,10 +109,12 @@ class AddNewDialog(QDialog):
         self.appendActionListeners()
 
     def new(self):
+        self.setWindowTitle('Add task')
         self.newTask = True
         self.window.idInput.setText(str(self.suggestedId()))
 
     def edit(self, task):
+        self.setWindowTitle('Edit task')
         self.newTask = False
         self.window.idInput.setText(str(task.id))
         self.window.idInput.setEnabled(False)
@@ -124,6 +131,7 @@ class SchedSim(QMainWindow):
         super(SchedSim, self).__init__()
         self.resize(1000, 800)
         self.load_ui()
+        self.setWindowTitle('SchedSim')
         self.tasks = []
 
     def runScheduler(self):
@@ -141,21 +149,17 @@ class SchedSim(QMainWindow):
                 try:
                     sched.execute(int(self.window.endTimeInput.text()))
                     self.confirm_dialog = QMessageBox()
+                    self.confirm_dialog.setIcon(QMessageBox.Information)
+                    self.confirm_dialog.setWindowTitle('Success')
                     self.confirm_dialog.setText("out.txt succesfully written")
                     self.confirm_dialog.show()
                 except Exception as e:
-                    self.error_dialog = QMessageBox()
-                    self.error_dialog.setText("Cannot write output file:\n" +
-                                              str(e))
-                    self.error_dialog.show()
+                    self.error_dialog=ShowErrorBox("Cannot write output file:\n" +
+                    str(e))
             else:
-                self.error_dialog = QMessageBox()
-                self.error_dialog.setText("Schedule not feasible")
-                self.error_dialog.show()
+                self.error_dialog=ShowErrorBox("Schedule not feasible")
         else:
-            self.error_dialog = QMessageBox()
-            self.error_dialog.setText('All deadlines must be defined for selected scheduler')
-            self.error_dialog.show()
+            self.error_dialog=ShowErrorBox('All deadlines must be defined for selected scheduler')
 
     def updateEndTimeInput(self):
         if self.window.majorCycleCB.checkState() and len(self.tasks) > 0:
@@ -202,8 +206,8 @@ class SchedSim(QMainWindow):
                         count, 3, QTableWidgetItem(str(task.deadline)))
                 self.window.tableWidget.setItem(
                     count, 2, QTableWidgetItem(str(task.period)))
-                self.updateEndTimeInput()
                 self.tasks[count] = task
+                self.updateEndTimeInput()
                 break
 
     def ShowNewDialog(self):
@@ -215,10 +219,10 @@ class SchedSim(QMainWindow):
         self.addDialog.show()
 
     def ShowEditDialog(self):
-        self.addDialog = AddNewDialog(
-            self, self.tasks, Scheduler.schedulers[
-                self.window.schedulersDropdown.currentIndex()].deadlineNeeded)
         if len(self.window.tableWidget.selectedRanges())>0:
+            self.addDialog = AddNewDialog(
+                self, self.tasks, Scheduler.schedulers[
+                    self.window.schedulersDropdown.currentIndex()].deadlineNeeded)
             r = self.window.tableWidget.selectedRanges()[0]
             dn = r.bottomRow()
             up = r.topRow()
@@ -256,33 +260,37 @@ class SchedSim(QMainWindow):
     def importSchedule(self):
         dialog = QFileDialog(self)
         dialog.setFileMode(QFileDialog.ExistingFile)
-        dialog.setNameFilter('Schedules (*.xml)')
+        dialog.setNameFilter('Task set (*.xml)')
         dialog.setViewMode(QFileDialog.List)
         if dialog.exec_():
             fileName = dialog.selectedFiles()
-            self.tasks = []
-            self.window.tableWidget.clearContents()
-            for i in range(self.window.tableWidget.rowCount() - 1, -1, -1):
-                self.window.tableWidget.removeRow(0)
-            try:
-                SchedIo.importFile(fileName[0], self.addTask)
-            except Exception as e:
-                self.error_dialog = QMessageBox()
-                self.error_dialog.setText("Cannot parse selected file:\n" +
+            if len(fileName)>0:
+                self.tasks = []
+                self.window.tableWidget.clearContents()
+                for i in range(self.window.tableWidget.rowCount() - 1, -1, -1):
+                    self.window.tableWidget.removeRow(0)
+                try:
+                    SchedIo.importFile(fileName[0], self.addTask)
+                except Exception as e:
+                    self.error_dialog=ShowErrorBox("Cannot parse selected file:\n" +
                                           str(e))
-                self.error_dialog.show()
 
     def exportSchedule(self):
-        fileName = (QFileDialog.getSaveFileName(self, 'Save Lattice', '', "Schedules (*.xml)"))[0]
-        exp = re.compile('.*\.xml$', re.IGNORECASE)
-        if not (exp.match(fileName)):
-            fileName += '.xml'
-        try:
-            SchedIo.exportFile(self.tasks, fileName)
-        except Exception as e:
-            self.error_dialog = QMessageBox()
-            self.error_dialog.setText("Writing error:\n" + str(e))
-            self.error_dialog.show()
+        if len(self.tasks)>0:
+            fileNameArr = QFileDialog.getSaveFileName(self, 'Export task set', '', "Task set (*.xml)")
+            print(fileNameArr)
+            if len(fileNameArr)>0:
+                fileName=fileNameArr[0]
+                if len(fileName)>0:
+                    exp = re.compile('.*\.xml$', re.IGNORECASE)
+                    if not (exp.match(fileName)):
+                        fileName += '.xml'
+                    try:
+                        SchedIo.exportFile(self.tasks, fileName)
+                    except Exception as e:
+                        self.error_dialog=ShowErrorBox("Writing error:\n" + str(e))
+        else:
+            self.error_dialog=ShowErrorBox("Add a task before exporting the task set")
 
     def appendActionListeners(self, window):
         window.addTask.triggered.connect(self.ShowNewDialog)
@@ -302,11 +310,11 @@ class SchedSim(QMainWindow):
         ui_file.close()
 
         tb = self.addToolBar("Tasks")
-        self.window.addTask = QAction(QIcon("add.bmp"), "add", self)
-        self.window.removeTask = QAction(QIcon("remove.bmp") ,"remove", self)
-        self.window.editTask = QAction(QIcon("edit.bmp"), "edit", self)
-        self.window.importSched = QAction(QIcon("import.bmp"), "import", self)
-        self.window.exportSched = QAction(QIcon("export.bmp"), "export", self)
+        self.window.addTask = QAction(QIcon("add.bmp"), "Add", self)
+        self.window.removeTask = QAction(QIcon("remove.bmp") ,"Remove", self)
+        self.window.editTask = QAction(QIcon("edit.bmp"), "Edit", self)
+        self.window.importSched = QAction(QIcon("import.bmp"), "Import", self)
+        self.window.exportSched = QAction(QIcon("export.bmp"), "Export", self)
 
         tb.addAction(self.window.addTask)
         tb.addAction(self.window.removeTask)
