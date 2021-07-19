@@ -5,8 +5,4 @@
 <p>SchedSim provides a simple interface (abstract class) which can be implemented to allow user to include his/her own scheduling algorythm.  DeadlineMonotonic algorythm is built-in and provided as a working example.</p>
 <p>For further information, design details and UML diagrams please look at the following document (/docs/SchedSim.pdf):</p>
 
-<object data="../../raw/master/docs/SchedSim.pdf" type="application/pdf" width="700px" height="700px">
-    <embed src="../../raw/master/docs/SchedSim.pdf">
-        <p>This browser does not support PDFs. Please download the PDF to view it: <a href="../../raw/master/docs/SchedSim.pdf">Download PDF</a>.</p>
-    </embed>
-</object>
+<p><a href="../../raw/master/docs/SchedSim.pdf">Open PDF</a></p>
