@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simulation>
+	<time start="0" end="100" />	<!-- Simulation time -->
+    <software>
+        <tasks>
+        	<!-- A task can be periodic or sporadic. The deadline parameter is relevant only for
+        	     real-time tasks -->
+            <task real-time="true" type="periodic" id="1" period="50" deadline="50"  wcet="25" />
+            <task real-time="true" type="periodic" id="2" period="100" deadline="30" wcet="10" />
+            <task real-time="true" type="sporadic" id="3" activation="50" deadline="50"  wcet="20" />
+            <task real-time="false" type="sporadic" id="4" activation="5" wcet="20" />
+        </tasks>
+        <scheduler algorithm="SJF"/>	<!-- add any relevant numbers, such as quantum time for RR -->
+    </software>
+    <hardware>
+    	<cpus>
+    		<pe id="0" speed="1" />	<!-- Speed represents the multiplicator for the wcet. For instance
+    		                             A task with wcet=10 running of a core with 1.25 speed it takes
+    		                              8 time units to execute -->
+    	</cpus>
+    </hardware>
+</simulation>
