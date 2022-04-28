@@ -6,6 +6,11 @@ The software is currently under development by [HEAPLab](https://heaplab.deib.po
 
 - Coming soon...
 
+<p align="center">
+  <img src="./docs/maindiagram.png" />
+</p>
+
+
 ## Contributors
 - Federico Reghenzani
 - Francesco Ratti
