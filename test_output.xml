@@ -1,0 +1,12 @@
+<simulation>
+	<time end="50" start="0" />	
+    <software>
+		<tasks><task activation="0.00898808128010059" id="1" realtime="true" type="sporadic" wcet="50" /><task activation="0.04083148124139274" id="2" realtime="true" type="sporadic" wcet="50" /><task activation="0.005487109586792938" id="3" realtime="true" type="sporadic" wcet="50" /><task activation="0.05344694669707323" id="4" realtime="true" type="sporadic" wcet="50" /><task activation="0.03645227282382313" id="5" realtime="true" type="sporadic" wcet="50" /><task activation="0.08755114490252364" id="6" realtime="true" type="sporadic" wcet="50" /><task activation="0.07063269092217139" id="7" realtime="true" type="sporadic" wcet="50" /><task activation="0.04221534322297538" id="8" realtime="true" type="sporadic" wcet="50" /><task activation="0.058413900330962554" id="9" realtime="true" type="sporadic" wcet="50" /><task activation="0.024374416684945" id="10" realtime="true" type="sporadic" wcet="50" /><task activation="0.03253607226554389" id="11" realtime="true" type="sporadic" wcet="50" /><task activation="0.032987994499559026" id="12" realtime="true" type="sporadic" wcet="50" /><task activation="0.005623859787352525" id="13" realtime="true" type="sporadic" wcet="50" /><task activation="0.02532232005729268" id="14" realtime="true" type="sporadic" wcet="50" /><task activation="0.1974364194490183" id="15" realtime="true" type="sporadic" wcet="50" /><task activation="0.2093554173809558" id="16" realtime="true" type="sporadic" wcet="50" /><task activation="0.033686303115494476" id="17" realtime="true" type="sporadic" wcet="50" /><task activation="0.07130989653293329" id="18" realtime="true" type="sporadic" wcet="50" /><task activation="0.2617665947946955" id="19" realtime="true" type="sporadic" wcet="50" /><task activation="0.5" id="19" realtime="true" type="sporadic" wcet="50" /></tasks>
+		<scheduler algorithm="HRRN" />
+	</software>
+    <hardware>
+    	<cpus>
+    		<pe id="0" speed="1" />	
+    	</cpus>
+    </hardware>
+</simulation>

@@ -45,7 +45,7 @@ def import_file(file_path, output_file):
                 count_task = 0
                 for task_leaf in task_root:
                     _real_time = False
-                    if task_leaf.attrib['real-time'] == 'true':
+                    if (task_leaf.attrib['realtime'] == 'true') :
                         _real_time = True
                     _type = task_leaf.attrib['type']
                     _id = int(task_leaf.attrib['id'])
@@ -57,7 +57,7 @@ def import_file(file_path, output_file):
                         _period = int(task_leaf.attrib['period'])
                     if task_leaf.attrib['type'] == 'sporadic':
                         _activation = int(task_leaf.attrib['activation'])
-                    if task_leaf.attrib['real-time'] == 'true':
+                    if (task_leaf.attrib['realtime'] == 'true'):
                         _deadline = int(task_leaf.attrib['deadline'])
 
                     if _id < 0 or _wcet <= 0 or _period <= 0 and (_deadline <= 0 and not _deadline == -1):
