@@ -3,36 +3,58 @@ import Task
 import Taskgenerator
 import sys
 import random
+from xml.dom import minidom
 
 
+
+def UUniFast(n, u):
+    vectu =[]
+    sumU = u
+    for i in range(0,n-1):
+        nextSumU = sumU * random.random()**(1/(n-(i+1)))
+        print(nextSumU)
+        vectu.append(sumU - nextSumU)  
+        sumU=nextSumU
+
+    vectu.append(sumU)
+    return vectu
 
 tree = ET.parse("test.xml")
 root = tree.getroot()
+print(tree)
+
 
 print(root[2][0][0].attrib)
 
 if root.tag == 'simulation':
+    if root[0].tag =='time':
+        time_start = int(root[0].attrib['start'])
+        time_end = int(root[0].attrib['end'])
+        total_time = time_end-time_start
     if root[1].tag == 'software':
         taskgen = root[1][0]
+        scheduler = root[1][1]
         if taskgen.tag == 'taskgenerator':
             print(taskgen.attrib)
             algortihm = taskgen.attrib['algorithm']
             utilization = float(taskgen.attrib['utilization'])
             nr_tasks = int(taskgen.attrib['nr_tasks'])
 
+            schedulerType = scheduler.attrib['algorithm']
+
+            root[1].remove(scheduler)
+
             elem = ET.SubElement(root[1], 'tasks')
+            ET.SubElement(root[1], 'scheduler', algorithm = schedulerType)
 
             # UUniFast algorithm
-            sumU = utilization
-            print(sumU)
-            for i in range(1,nr_tasks):
-                nextSumU = sumU * random.random()**(1/(nr_tasks-i))
-                ET.SubElement(elem, 'task', realtime='true', type='sporadic', id =str(i), activation=str(sumU -nextSumU), wcet='50')
-                add = sumU - nextSumU
-                nextSumU = sumU
-            ET.SubElement(elem, 'task', realtime='true', type='sporadic', id =str(i), activation=str(sumU), wcet ='50' )
+            vec=[]
+            vec = UUniFast(nr_tasks,utilization)
+            print(vec)
+            for j in range (0, nr_tasks):
+                ET.SubElement(elem, 'task', realtime='false', type='sporadic', id =str(j+1), activation=str(int(vec[j]*total_time+time_start)), wcet = '50')
             root[1].remove(taskgen)
-    
-           
+            
+ET.indent(tree, space="\t", level=0)
+tree.write("test_output.xml", encoding="utf-8")    
 
-tree.write('test_output.xml')

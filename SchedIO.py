@@ -41,7 +41,7 @@ def import_file(file_path, output_file):
 
         if root_node[1].tag == 'software':
             if scheduler:
-                task_root = root_node[1][0]
+                task_root = root_node[1].find('tasks')
                 count_task = 0
                 for task_leaf in task_root:
                     _real_time = False
@@ -100,17 +100,46 @@ def import_file(file_path, output_file):
     return scheduler
 
 
+import csv
+
+
+
+
+
 # This class was based on SchedSim v1:
 # https://github.com/HEAPLab/schedsim/blob/master/SchedIo.py
 class SchedulerEventWriter:
+
     def __init__(self, output_file):
-        self.out = open(output_file, 'w')
+        self.out = open(output_file, 'w+')
 
     def add_scheduler_event(self, scheduler_event):
         self.out.write(
             str(scheduler_event.timestamp) + ',' + str(scheduler_event.task.id) + ',' +
             str(scheduler_event.job) + ',' + str(scheduler_event.processor) + ',' +
-            str(scheduler_event.type) + ',' + str(scheduler_event.extra) + '\n')
+            str(scheduler_event.type) + ',' + str(scheduler_event.extra) +'\n')
+            
 
     def terminate_write(self):
+        self.out.seek(0)
+        task_started = 0
+        task_finished = 0
+        task_Missed = 0
+
+        line = self.out.readline()
+        while line:
+            vec = str(line).split(",")
+            if vec[4] == 'S':
+                task_started +=1
+            elif vec[4] == 'F':
+                task_finished +=1
+            elif vec[4] == 'M':
+                task_Missed +=1
+
+            line = self.out.readline()
+
+        self.out.write("Started Tasks= " + str(task_started)+'\n')
+        self.out.write("Finished Tasks= " + str(task_finished)+'\n')
+        self.out.write("Missed Deadline Tasks= " + str(task_Missed)+'\n')
+        
         self.out.close()
