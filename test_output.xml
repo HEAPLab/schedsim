@@ -23,7 +23,7 @@
 			<task realtime="false" type="sporadic" id="19" activation="1" wcet="50" />
 			<task realtime="false" type="sporadic" id="20" activation="0" wcet="50" />
 		</tasks>
-		<scheduler algorithm="FIFO" />
+		<scheduler algorithm="HRRN" />
 	</software>
 	<hardware>
 		<cpus>

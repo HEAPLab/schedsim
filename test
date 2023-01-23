@@ -19,6 +19,10 @@
 40,2,3,0,A,0
 40,4,0,0,S,0
 50,1,1,0,D,0
+Actual System Runtime utilization= 1.00 
+Nr Activations= 10
 Started Tasks= 5
-Finished Tasks= 4
-Missed Tasks= 0
+Missed Deadline Tasks= 0
+Max/Avg/Min Run time = 20.00 5.00 5.00 
+Max/Avg/Min Slack time = 35.00 17.50 30.00 
+Max/Avg/Min Waiting time= 51.00 35.00 0.00 

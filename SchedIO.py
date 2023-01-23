@@ -125,21 +125,95 @@ class SchedulerEventWriter:
         task_started = 0
         task_finished = 0
         task_Missed = 0
+        task_Activation = 0
+        task_Deadline = 0
+        time_final = 0
+        time_initial = 0
+        time_start = []
+        time_finish = []
+        time_deadline = []
+        time_arrival =[]
+        aux_list = []
+        
 
         line = self.out.readline()
+        vec = str(line).split(",")
+        time_initial = int(vec[0])
+        slack_time = 0
+
         while line:
             vec = str(line).split(",")
             if vec[4] == 'S':
+                time_start.append([int(vec[0]), str(vec[1]+','+vec[2]) ])
                 task_started +=1
             elif vec[4] == 'F':
+                time_finish.append([int(vec[0]), str(vec[1]+','+vec[2]) ])
                 task_finished +=1
             elif vec[4] == 'M':
                 task_Missed +=1
+            elif vec[4] == 'A':
+                time_arrival.append([int(vec[0]), str(vec[1]+','+vec[2]) ])
+                task_Activation +=1
+            elif vec[4] == 'D':
+                time_deadline.append([int(vec[0]), str(vec[1]+','+vec[2]) ])
+                task_Deadline +=1
 
             line = self.out.readline()
 
+        time_final = int(vec[0])
+        run_time = 0
+
+        #execution time - in these one they have the same corresponding location, because for one start we need one finish, less in the last one
+        max_exec = 0
+        min_exec = time_final +1
+        for i in range(0, len(time_finish)):
+            aux = (time_finish[i][0] - time_start[i][0])
+            run_time += aux
+            if (aux > max_exec):
+                max_exec = aux
+            if (aux < min_exec):
+                min_exec = aux
+
+
+        run_time += time_final - time_start[len(time_start)-1][0]
+
+
+        #slack Time
+        min_slack = time_final +1
+        max_slac = 0
+        for i in range(0, len(time_deadline)):
+            for j in range(0, len(time_finish)):
+                if(time_deadline[i][1] == time_finish[j][1]):
+                    aux = (time_deadline[i][0] - time_finish[i][0])
+                    slack_time = aux
+                    if (aux > max_slac):
+                        max_slac = aux
+                    if (aux < min_slack):
+                        min_slack = aux
+
+        
+        #Waiting Time
+        min_wai =0
+        max_wai = time_final +1
+        wai_time = 0
+        for i in range(0, len(time_start)):
+            for j in range(0, len(time_arrival)):
+                if(time_start[i][1] == time_arrival[j][1]):
+                    aux = (time_start[i][0] - time_arrival[j][0])
+                    wai_time += aux
+                    if (aux > max_wai):
+                        max_wai = aux
+                    if (aux < min_wai):
+                        min_wai = aux
+
+
+        self.out.write("Actual System Runtime utilization= %.2f \n" % (run_time/(time_final-time_initial)) )
+
+        self.out.write("Nr Activations= " + str(task_Activation)+'\n')
         self.out.write("Started Tasks= " + str(task_started)+'\n')
-        self.out.write("Finished Tasks= " + str(task_finished)+'\n')
         self.out.write("Missed Deadline Tasks= " + str(task_Missed)+'\n')
+        self.out.write("Max/Avg/Min Run time = %.2f %.2f %.2f \n" % (max_exec, (run_time/len(time_arrival)), min_exec))
+        self.out.write("Max/Avg/Min Slack time = %.2f %.2f %.2f \n" % (max_slac, (slack_time/len(time_deadline)), min_slack))
+        self.out.write("Max/Avg/Min Waiting time= %.2f %.2f %.2f \n" % (max_wai, (wai_time/len(time_deadline)), min_wai))
         
         self.out.close()
