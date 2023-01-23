@@ -12,7 +12,6 @@ def UUniFast(n, u):
     sumU = u
     for i in range(0,n-1):
         nextSumU = sumU * random.random()**(1/(n-(i+1)))
-        print(nextSumU)
         vectu.append(sumU - nextSumU)  
         sumU=nextSumU
 
@@ -21,10 +20,8 @@ def UUniFast(n, u):
 
 tree = ET.parse("test.xml")
 root = tree.getroot()
-print(tree)
 
 
-print(root[2][0][0].attrib)
 
 if root.tag == 'simulation':
     if root[0].tag =='time':
@@ -35,7 +32,6 @@ if root.tag == 'simulation':
         taskgen = root[1][0]
         scheduler = root[1][1]
         if taskgen.tag == 'taskgenerator':
-            print(taskgen.attrib)
             algortihm = taskgen.attrib['algorithm']
             utilization = float(taskgen.attrib['utilization'])
             nr_tasks = int(taskgen.attrib['nr_tasks'])
@@ -50,9 +46,8 @@ if root.tag == 'simulation':
             # UUniFast algorithm
             vec=[]
             vec = UUniFast(nr_tasks,utilization)
-            print(vec)
             for j in range (0, nr_tasks):
-                ET.SubElement(elem, 'task', realtime='false', type='sporadic', id =str(j+1), activation=str(int(vec[j]*total_time+time_start)), wcet = '50')
+                ET.SubElement(elem, 'task', realtime='false', type='sporadic', id =str(j+1), activation=str(int(vec[j]*total_time+time_start)), wcet = '50', dependencies = '0')
             root[1].remove(taskgen)
             
 ET.indent(tree, space="\t", level=0)

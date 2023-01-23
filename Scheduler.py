@@ -15,6 +15,7 @@ class Scheduler:
 
         self.arrival_events = []
         self.finish_events = []
+        self.events_done = [] #list of events already finished
         self.deadline_events = []
         self.start_events = []
 
@@ -90,14 +91,27 @@ class NonPreemptive(Scheduler):
             if event.timestamp == time:
                 self.output_file.add_scheduler_event(event)
                 self.executing = None
+                self.events_done.append(event)
             elif event.timestamp > time:
                 helper_list.append(event)
         self.finish_events = helper_list
 
     def find_start_events(self, time):
         helper_list = []
+
+
         for event in self.start_events:
-            if event.timestamp == time and self.executing is None:
+            flag_dependencies = False
+            if (event.task.dependencies != 0):
+                tasks_done = 0 #couter for the number of tasks finished of the ones dependent upon
+                dependencies = str(event.task.dependencies).split(",")
+                for task_before in dependencies:
+                    for task_aux in self.events_done:
+                        if(int(task_before) == task_aux.task.id):
+                            tasks_done +=1
+                if (tasks_done != len(dependencies)):
+                    flag_dependencies= True
+            if event.timestamp == time and self.executing is None and flag_dependencies == False:
                 self.output_file.add_scheduler_event(event)
                 self.executing = event
                 # Create finish event:
@@ -115,6 +129,8 @@ class NonPreemptive(Scheduler):
                     self.deadline_events.append(deadline_event)
             elif event.timestamp == time and self.executing:
                 event.timestamp += (self.executing.timestamp + self.executing.task.wcet - event.timestamp)
+            elif event.timestamp == time and flag_dependencies == True:
+                event.timestamp +=1
             if event.timestamp > time:
                 helper_list.append(event)
         self.start_events = helper_list

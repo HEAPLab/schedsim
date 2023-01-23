@@ -52,6 +52,7 @@ def import_file(file_path, output_file):
                     _period = -1
                     _activation = -1
                     _deadline = -1
+                    _dependencies = -1
                     _wcet = int(task_leaf.attrib['wcet'])
                     if task_leaf.attrib['type'] == 'periodic':
                         _period = int(task_leaf.attrib['period'])
@@ -59,6 +60,8 @@ def import_file(file_path, output_file):
                         _activation = int(task_leaf.attrib['activation'])
                     if (task_leaf.attrib['realtime'] == 'true'):
                         _deadline = int(task_leaf.attrib['deadline'])
+                    if not (task_leaf.attrib['dependencies'] == 0):
+                        _dependencies = int(task_leaf.attrib['dependencies'])
 
                     if _id < 0 or _wcet <= 0 or _period <= 0 and (_deadline <= 0 and not _deadline == -1):
                         raise Exception(
@@ -67,7 +70,7 @@ def import_file(file_path, output_file):
                         raise Exception(
                             'inconsistent values saved in the file')
 
-                    task = Task.Task(_real_time, _type, _id, _period, _activation, _deadline, _wcet)
+                    task = Task.Task(_real_time, _type, _id, _period, _activation, _deadline, _wcet, _dependencies)
                     scheduler.tasks.append(task)
                     count_task += 1
                 if count_task == 0:
@@ -133,7 +136,6 @@ class SchedulerEventWriter:
         time_finish = []
         time_deadline = []
         time_arrival =[]
-        aux_list = []
         
 
         line = self.out.readline()
@@ -175,8 +177,8 @@ class SchedulerEventWriter:
                 min_exec = aux
 
 
-        run_time += time_final - time_start[len(time_start)-1][0]
-
+        if((len(time_start) > 0) and len(time_finish)!=len(time_start)):
+            run_time += time_final - time_start[len(time_start)-1][0]
 
         #slack Time
         min_slack = time_final +1
@@ -193,8 +195,8 @@ class SchedulerEventWriter:
 
         
         #Waiting Time
-        min_wai =0
-        max_wai = time_final +1
+        min_wai = time_final +1
+        max_wai = 0
         wai_time = 0
         for i in range(0, len(time_start)):
             for j in range(0, len(time_arrival)):
@@ -212,8 +214,11 @@ class SchedulerEventWriter:
         self.out.write("Nr Activations= " + str(task_Activation)+'\n')
         self.out.write("Started Tasks= " + str(task_started)+'\n')
         self.out.write("Missed Deadline Tasks= " + str(task_Missed)+'\n')
-        self.out.write("Max/Avg/Min Run time = %.2f %.2f %.2f \n" % (max_exec, (run_time/len(time_arrival)), min_exec))
-        self.out.write("Max/Avg/Min Slack time = %.2f %.2f %.2f \n" % (max_slac, (slack_time/len(time_deadline)), min_slack))
-        self.out.write("Max/Avg/Min Waiting time= %.2f %.2f %.2f \n" % (max_wai, (wai_time/len(time_deadline)), min_wai))
+        if(len(time_arrival)>0):
+            self.out.write("Max/Avg/Min Run time = %.2f %.2f %.2f \n" % (max_exec, (run_time/len(time_arrival)), min_exec))
+        if(len(time_deadline)>0):
+            self.out.write("Max/Avg/Min Slack time = %.2f %.2f %.2f \n" % (max_slac, (slack_time/len(time_deadline)), min_slack))
+        if(len(time_start)>0):
+            self.out.write("Max/Avg/Min Waiting time= %.2f %.2f %.2f \n" % (max_wai, (wai_time/len(time_start)), min_wai))
         
         self.out.close()

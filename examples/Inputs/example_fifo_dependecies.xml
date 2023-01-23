@@ -5,12 +5,10 @@
         <tasks>
         	<!-- A task can be periodic or sporadic. The deadline parameter is relevant only for
         	     real-time tasks -->
-            <task real-time="true" type="periodic" id="1" period="10" deadline="50"  wcet="5" dependencies = '0'/>
-            <task real-time="true" type="periodic" id="2" period="20" deadline="30" wcet="10" dependencies = '0'/>
-            <task real-time="true" type="sporadic" id="3" activation="5" deadline="50"  wcet="20" dependencies = '0'/>
-            <task real-time="false" type="sporadic" id="4" activation="10" wcet="15" dependencies = '0'/>
+            <task realtime="true" type="sporadic" id="1" activation="0" deadline="50"  wcet="5" dependencies ='2'/>
+            <task realtime="true" type="periodic" id="2" period="20" deadline="30" wcet="10" dependencies = '0'/>
         </tasks>
-        <scheduler algorithm="RR" quantum="3" />	<!-- add any relevant numbers, such as quantum time for RR -->
+        <scheduler algorithm="FIFO"/>	<!-- add any relevant numbers, such as quantum time for RR -->
     </software>
     <hardware>
     	<cpus>

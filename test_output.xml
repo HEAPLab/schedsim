@@ -1,29 +1,29 @@
 <simulation>
-	<time start="0" end="50" />
+	<time start="0" end="400" />
 	<software>
 		<tasks>
-			<task realtime="false" type="sporadic" id="1" activation="0" wcet="50" />
-			<task realtime="false" type="sporadic" id="2" activation="0" wcet="50" />
-			<task realtime="false" type="sporadic" id="3" activation="1" wcet="50" />
-			<task realtime="false" type="sporadic" id="4" activation="1" wcet="50" />
-			<task realtime="false" type="sporadic" id="5" activation="0" wcet="50" />
-			<task realtime="false" type="sporadic" id="6" activation="2" wcet="50" />
-			<task realtime="false" type="sporadic" id="7" activation="1" wcet="50" />
-			<task realtime="false" type="sporadic" id="8" activation="4" wcet="50" />
-			<task realtime="false" type="sporadic" id="9" activation="1" wcet="50" />
-			<task realtime="false" type="sporadic" id="10" activation="0" wcet="50" />
-			<task realtime="false" type="sporadic" id="11" activation="1" wcet="50" />
-			<task realtime="false" type="sporadic" id="12" activation="0" wcet="50" />
-			<task realtime="false" type="sporadic" id="13" activation="0" wcet="50" />
-			<task realtime="false" type="sporadic" id="14" activation="1" wcet="50" />
-			<task realtime="false" type="sporadic" id="15" activation="0" wcet="50" />
-			<task realtime="false" type="sporadic" id="16" activation="0" wcet="50" />
-			<task realtime="false" type="sporadic" id="17" activation="1" wcet="50" />
-			<task realtime="false" type="sporadic" id="18" activation="1" wcet="50" />
-			<task realtime="false" type="sporadic" id="19" activation="1" wcet="50" />
-			<task realtime="false" type="sporadic" id="20" activation="0" wcet="50" />
+			<task realtime="false" type="sporadic" id="1" activation="1" wcet="50" dependencies="2" />
+			<task realtime="false" type="sporadic" id="2" activation="1" wcet="50" dependencies="3" />
+			<task realtime="false" type="sporadic" id="3" activation="0" wcet="50" dependencies="0" />
+			<task realtime="false" type="sporadic" id="4" activation="0" wcet="50" dependencies="0" />
+			<task realtime="false" type="sporadic" id="5" activation="2" wcet="50" dependencies="0" />
+			<task realtime="false" type="sporadic" id="6" activation="3" wcet="50" dependencies="0" />
+			<task realtime="false" type="sporadic" id="7" activation="0" wcet="50" dependencies="0" />
+			<task realtime="false" type="sporadic" id="8" activation="0" wcet="50" dependencies="0" />
+			<task realtime="false" type="sporadic" id="9" activation="2" wcet="50" dependencies="0" />
+			<task realtime="false" type="sporadic" id="10" activation="0" wcet="50" dependencies="0" />
+			<task realtime="false" type="sporadic" id="11" activation="2" wcet="50" dependencies="0" />
+			<task realtime="false" type="sporadic" id="12" activation="0" wcet="50" dependencies="0" />
+			<task realtime="false" type="sporadic" id="13" activation="0" wcet="50" dependencies="0" />
+			<task realtime="false" type="sporadic" id="14" activation="2" wcet="50" dependencies="0" />
+			<task realtime="false" type="sporadic" id="15" activation="4" wcet="50" dependencies="0" />
+			<task realtime="false" type="sporadic" id="16" activation="0" wcet="50" dependencies="0" />
+			<task realtime="false" type="sporadic" id="17" activation="1" wcet="50" dependencies="0" />
+			<task realtime="false" type="sporadic" id="18" activation="0" wcet="50" dependencies="0" />
+			<task realtime="false" type="sporadic" id="19" activation="0" wcet="50" dependencies="0" />
+			<task realtime="false" type="sporadic" id="20" activation="0" wcet="50" dependencies="0" />
 		</tasks>
-		<scheduler algorithm="HRRN" />
+		<scheduler algorithm="FIFO" />
 	</software>
 	<hardware>
 		<cpus>

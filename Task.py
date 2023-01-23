@@ -2,7 +2,7 @@
 # https://github.com/HEAPLab/schedsim/blob/master/Task.py
 class Task:
 
-    def __init__(self, real_time, _type, _id, period, activation, deadline, wcet):
+    def __init__(self, real_time, _type, _id, period, activation, deadline, wcet, dependencies):
         self.real_time = real_time
         self.type = _type
         self.id = _id
@@ -10,6 +10,7 @@ class Task:
         self.activation = activation
         self.deadline = deadline
         self.wcet = wcet
+        self.dependencies = dependencies
         # Preemptive facilities:
         self.finish = False
         self.first_time_executing = True
