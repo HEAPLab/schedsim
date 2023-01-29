@@ -126,7 +126,6 @@ class SchedulerEventWriter:
 
     def terminate_write(self):
         self.out.seek(0)
-        
 
         line = self.out.readline()
         vec = str(line).split(",")
@@ -184,14 +183,11 @@ class SchedulerEventWriter:
             line = self.out.readline()
 
         #execution time
-        print(run_time)
-        print("ola\n")
         for j in range(0, number_tasks):
             for i in range(0, number_sub_tasks):
                 if(time_finish[j][i] != 0):
                     run_time += (time_finish[j][i] - time_start[j][i])
                 elif(time_start[j][i] != 0 and task_Missed[j][i] != 1):
-                    print(time_final - time_start[j][i])
                     run_time += time_final - time_start[j][i]
 
         self.out.write("Actual System Runtime utilization= %.2f \n" % (run_time/(time_final-time_initial)) )
@@ -230,39 +226,39 @@ class SchedulerEventWriter:
                 self.out.write("Max/Avg/Min Run time Task % d = %.2f %.2f %.2f \n" % (j+1, max_exec, (exec_time_task/task_started[j]), min_exec))
 
 
-            """
+            
             #slack Time
+            slack_time = 0
             min_slack = time_final +1
             max_slac = 0
-            for i in range(0, len(time_deadline)):
-                for j in range(0, len(time_finish)):
-                    if(time_deadline[i][1] == time_finish[j][1]):
-                        aux = (time_deadline[i][0] - time_finish[i][0])
-                        slack_time += aux
-                        if (aux > max_slac):
-                            max_slac = aux
-                        if (aux < min_slack):
-                            min_slack = aux
+            for i in range(0, number_sub_tasks):
+                if(time_deadline[j][i] != 0):
+                    aux = (time_deadline[j][i] - time_finish[j][i])
+                    slack_time += aux
+                    if (aux > max_slac):
+                        max_slac = aux
+                    if (aux < min_slack):
+                        min_slack = aux
+
+            if(task_Deadline[j]>0):
+                self.out.write("Max/Avg/Min Slack time Task %d = %.2f %.2f %.2f \n" % (j+1,max_slac, (slack_time/task_Deadline[j]), min_slack))
 
             
             #Waiting Time
             min_wai = time_final +1
             max_wai = 0
             wai_time = 0
-            for i in range(0, len(time_start)):
-                for j in range(0, len(time_arrival)):
-                    if(time_start[i][1] == time_arrival[j][1]):
-                        aux = (time_start[i][0] - time_arrival[j][0])
-                        wai_time += aux
-                        if (aux > max_wai):
-                            max_wai = aux
-                        if (aux < min_wai):
-                            min_wai = aux
+            for i in range(0, number_sub_tasks):
+                if(time_start[j][i] != 0 or time_finish[j][i] !=0):
+                    aux = (time_start[j][i] - time_arrival[j][i])
+                    wai_time += aux
+                    if (aux > max_wai):
+                        max_wai = aux
+                    if (aux < min_wai):
+                        min_wai = aux
 
             
-            if(len(time_deadline)>0):
-                self.out.write("Max/Avg/Min Slack time = %.2f %.2f %.2f \n" % (max_slac, (slack_time/len(time_deadline)), min_slack))
-            if(len(time_start)>0):
-                self.out.write("Max/Avg/Min Waiting time= %.2f %.2f %.2f \n" % (max_wai, (wai_time/len(time_start)), min_wai))
-            """        
+            if(task_started[j]>0):
+                self.out.write("Max/Avg/Min Waiting time Task %d= %.2f %.2f %.2f \n" % (j+1,max_wai, (wai_time/task_started[j]), min_wai))
+                    
         self.out.close()
