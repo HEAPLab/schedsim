@@ -124,7 +124,7 @@ class SchedulerEventWriter:
             str(scheduler_event.type) + ',' + str(scheduler_event.extra) +'\n')
             
 
-    def terminate_write(self, time_final, Time_initial):
+    def terminate_write(self, time_final, time_initial):
         self.out.seek(0)
         line = self.out.readline()
         vec = str(line).split(",")
@@ -157,7 +157,6 @@ class SchedulerEventWriter:
         self.out.seek(0)
         line = self.out.readline()
         vec = str(line).split(",")
-        time_initial = int(vec[0])
         while line:
             vec = str(line).split(",")
             index = int(vec[1]) - 1
