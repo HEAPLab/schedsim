@@ -2,6 +2,7 @@ import xml.etree.ElementTree as ET
 import Task
 import Scheduler
 import Cpu
+import  numpy as np
 
 
 # The idea of this function was based on SchedSim v1:
@@ -125,60 +126,92 @@ class SchedulerEventWriter:
 
     def terminate_write(self):
         self.out.seek(0)
-        task_started = 0
-        task_finished = 0
-        task_Missed = 0
-        task_Activation = 0
-        task_Deadline = 0
-        time_final = 0
-        time_initial = 0
-        time_start = []
-        time_finish = []
-        time_deadline = []
-        time_arrival =[]
         
 
         line = self.out.readline()
         vec = str(line).split(",")
         time_initial = int(vec[0])
-        slack_time = 0
+        number_tasks=0
+        number_sub_tasks=0
+    
 
         while line:
             vec = str(line).split(",")
-            if vec[4] == 'S':
-                time_start.append([int(vec[0]), str(vec[1]+','+vec[2]) ])
-                task_started +=1
-            elif vec[4] == 'F':
-                time_finish.append([int(vec[0]), str(vec[1]+','+vec[2]) ])
-                task_finished +=1
-            elif vec[4] == 'M':
-                task_Missed +=1
-            elif vec[4] == 'A':
-                time_arrival.append([int(vec[0]), str(vec[1]+','+vec[2]) ])
-                task_Activation +=1
-            elif vec[4] == 'D':
-                time_deadline.append([int(vec[0]), str(vec[1]+','+vec[2]) ])
-                task_Deadline +=1
-
+            if (int(vec[1])> number_tasks):
+                number_tasks=int(vec[1])
+            if (int(vec[2])> number_sub_tasks):
+                number_sub_tasks=int(vec[2])    
             line = self.out.readline()
-
         time_final = int(vec[0])
         run_time = 0
 
-        #execution time - in these one they have the same corresponding location, because for one start we need one finish, less in the last one
+
+        task_started = [0]*number_tasks
+        task_finished = [0]*number_tasks
+        task_Missed = np.zeros((number_tasks, number_sub_tasks))
+        task_Activation = [0]*number_tasks
+        task_Deadline = [0]*number_tasks
+        time_start = np.zeros((number_tasks, number_sub_tasks))
+        time_finish = np.zeros((number_tasks, number_sub_tasks))
+        time_deadline = np.zeros((number_tasks, number_sub_tasks))
+        time_arrival = np.zeros((number_tasks, number_sub_tasks))
+
+        print("ola\n")
+
+        self.out.seek(0)
+        line = self.out.readline()
+        vec = str(line).split(",")
+        time_initial = int(vec[0])
+        while line:
+            vec = str(line).split(",")
+            index = int(vec[1]) - 1
+            index2 = int(vec[2])-1
+            if(index2 == -1):
+                index2 =0
+            if vec[4] == 'S':
+                time_start[index][index2] = int(vec[0])
+                task_started[index] +=1
+            elif vec[4] == 'F':
+                time_finish[index][index2] = int(vec[0])
+                task_finished[index] +=1
+            elif vec[4] == 'M':
+                task_Missed[index][index2] = 1
+            elif vec[4] == 'A':
+                time_arrival[index][index2] = int(vec[0])
+                task_Activation[index] +=1
+            elif vec[4] == 'D':
+                time_deadline[index][index2] = int(vec[0])
+                task_Deadline[index] +=1
+            line = self.out.readline()
+
+        #execution time
+        print(run_time)
+        print("ola\n")
+        for j in range(0, number_tasks):
+            for i in range(0, number_sub_tasks):
+                if(time_finish[j][i] != 0):
+                    run_time += (time_finish[j][i] - time_start[j][i])
+                elif(time_start[j][i] != 0 and task_Missed[j][i] != 1):
+                    print(time_final - time_start[j][i])
+                    run_time += time_final - time_start[j][i]
+
+        """"
+        #execution time tasks
+        slack_time = [None] * number_tasks
         max_exec = 0
         min_exec = time_final +1
-        for i in range(0, len(time_finish)):
-            aux = (time_finish[i][0] - time_start[i][0])
-            run_time += aux
-            if (aux > max_exec):
-                max_exec = aux
-            if (aux < min_exec):
-                min_exec = aux
+        for i in range(0, number_tasks):
+            for j in range(0, len(time_finish)):
+                if(time_deadline[i][1] == time_finish[j][1]):
+                    aux = (time_deadline[i][0] - time_finish[i][0])
+                    slack_time = aux
+                    if (aux > max_slac):
+                        max_slac = aux
+                    if (aux < min_slack):
+                        min_slack = aux
 
+            run_time += (time_finish[i][0] - time_start[i][0])
 
-        if((len(time_start) > 0) and len(time_finish)!=len(time_start)):
-            run_time += time_final - time_start[len(time_start)-1][0]
 
         #slack Time
         min_slack = time_final +1
@@ -187,7 +220,7 @@ class SchedulerEventWriter:
             for j in range(0, len(time_finish)):
                 if(time_deadline[i][1] == time_finish[j][1]):
                     aux = (time_deadline[i][0] - time_finish[i][0])
-                    slack_time = aux
+                    slack_time += aux
                     if (aux > max_slac):
                         max_slac = aux
                     if (aux < min_slack):
@@ -208,9 +241,9 @@ class SchedulerEventWriter:
                     if (aux < min_wai):
                         min_wai = aux
 
-
+        """
         self.out.write("Actual System Runtime utilization= %.2f \n" % (run_time/(time_final-time_initial)) )
-
+        """
         self.out.write("Nr Activations= " + str(task_Activation)+'\n')
         self.out.write("Started Tasks= " + str(task_started)+'\n')
         self.out.write("Missed Deadline Tasks= " + str(task_Missed)+'\n')
@@ -220,5 +253,5 @@ class SchedulerEventWriter:
             self.out.write("Max/Avg/Min Slack time = %.2f %.2f %.2f \n" % (max_slac, (slack_time/len(time_deadline)), min_slack))
         if(len(time_start)>0):
             self.out.write("Max/Avg/Min Waiting time= %.2f %.2f %.2f \n" % (max_wai, (wai_time/len(time_start)), min_wai))
-        
+        """        
         self.out.close()

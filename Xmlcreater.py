@@ -1,9 +1,5 @@
 import xml.etree.ElementTree as ET
-import Task
-import Taskgenerator
-import sys
 import random
-from xml.dom import minidom
 
 
 
