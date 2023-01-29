@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <simulation>
-	<time start="0" end="50" />	<!-- Simulation time -->
+	<time start="0" end="200" />	<!-- Simulation time -->
     <software>
-		<taskgenerator algorithm="UUnifast" utilization="0.5" nr_tasks="20" />
-		<scheduler algorithm="HRRN"/>
+		<taskgenerator algorithm="UUnifast" utilization="0.5" nr_tasks="10" />
+		<scheduler algorithm="FIFO"/>
 	</software>
     <hardware>
     	<cpus>

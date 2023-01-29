@@ -124,12 +124,10 @@ class SchedulerEventWriter:
             str(scheduler_event.type) + ',' + str(scheduler_event.extra) +'\n')
             
 
-    def terminate_write(self):
+    def terminate_write(self, time_final, Time_initial):
         self.out.seek(0)
-
         line = self.out.readline()
         vec = str(line).split(",")
-        time_initial = int(vec[0])
         number_tasks=0
         number_sub_tasks=0
     
@@ -141,10 +139,10 @@ class SchedulerEventWriter:
             if (int(vec[2])> number_sub_tasks):
                 number_sub_tasks=int(vec[2])    
             line = self.out.readline()
-        time_final = int(vec[0])
         run_time = 0
 
-
+        if(number_sub_tasks==0):
+            number_sub_tasks=1
         task_started = [0]*number_tasks
         task_finished = [0]*number_tasks
         task_Missed = np.zeros((number_tasks, number_sub_tasks))
@@ -163,9 +161,7 @@ class SchedulerEventWriter:
         while line:
             vec = str(line).split(",")
             index = int(vec[1]) - 1
-            index2 = int(vec[2])-1
-            if(index2 == -1):
-                index2 =0
+            index2 = int(vec[2])
             if vec[4] == 'S':
                 time_start[index][index2] = int(vec[0])
                 task_started[index] +=1

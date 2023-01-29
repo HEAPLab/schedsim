@@ -185,7 +185,7 @@ class FIFO(NonPreemptive):
             self.find_start_events(time)
             time += 1
 
-        self.output_file.terminate_write()
+        self.output_file.terminate_write(self.end, self.start)
 
 
 class SJF(NonPreemptive):
@@ -207,7 +207,7 @@ class SJF(NonPreemptive):
             self.find_start_events(time)
             time += 1
 
-        self.output_file.terminate_write()
+        self.output_file.terminate_write(self.end, self.start)
 
 
 class HRRN(NonPreemptive):
@@ -229,6 +229,8 @@ class HRRN(NonPreemptive):
             self.start_events.sort(key=lambda x: x.response_ratio, reverse=True)
             self.find_start_events(time)
             time += 1
+
+        self.output_file.terminate_write(self.end, self.start)
 
     def calculate_responsive_ratio(self, time):
         for event in self.start_events:
@@ -295,6 +297,8 @@ class SRTF(Preemptive):
                 self.executing.executing_time += 1
             time += 1
 
+        self.output_file.terminate_write(self.end, self.start)
+
 
 class RoundRobin(Preemptive):
 
@@ -353,3 +357,5 @@ class RoundRobin(Preemptive):
             if self.executing:
                 self.executing.executing_time += 1
             time += 1
+
+        self.output_file.terminate_write(self.end, self.start)
