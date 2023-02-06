@@ -2,7 +2,7 @@
 	<time start="0" end="200" />
 	<software>
 		<tasks>
-			<task realtime="false" type="sporadic" id="1" activation="0" wcet="7" dependencies="0" />
+			<task realtime="false" type="sporadic" id="1" activation="0" wcet="7" dependencies="2,3,4,5" />
 			<task realtime="false" type="sporadic" id="2" activation="0" wcet="6" dependencies="0" />
 			<task realtime="false" type="sporadic" id="3" activation="0" wcet="1" dependencies="0" />
 			<task realtime="false" type="sporadic" id="4" activation="0" wcet="1" dependencies="0" />

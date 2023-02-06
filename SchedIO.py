@@ -62,7 +62,7 @@ def import_file(file_path, output_file):
                     if (task_leaf.attrib['realtime'] == 'true'):
                         _deadline = int(task_leaf.attrib['deadline'])
                     if not (task_leaf.attrib['dependencies'] == 0):
-                        _dependencies = int(task_leaf.attrib['dependencies'])
+                        _dependencies = (task_leaf.attrib['dependencies'])
 
                     if _id < 0 or _wcet <= 0 or _period <= 0 and (_deadline <= 0 and not _deadline == -1):
                         raise Exception(

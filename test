@@ -8,16 +8,16 @@
 0,8,0,0,A,0
 0,9,0,0,A,0
 0,10,0,0,A,0
-0,1,0,0,S,0
-7,1,0,0,F,0
-7,2,0,0,S,0
-13,2,0,0,F,0
-13,3,0,0,S,0
-14,3,0,0,F,0
-14,4,0,0,S,0
-15,4,0,0,F,0
-15,5,0,0,S,0
-49,5,0,0,F,0
+0,2,0,0,S,0
+6,2,0,0,F,0
+6,3,0,0,S,0
+7,3,0,0,F,0
+7,4,0,0,S,0
+8,4,0,0,F,0
+8,5,0,0,S,0
+42,5,0,0,F,0
+42,1,0,0,S,0
+49,1,0,0,F,0
 49,6,0,0,S,0
 62,6,0,0,F,0
 62,7,0,0,S,0
@@ -32,23 +32,23 @@ Actual System Runtime utilization= 0.48
 Nr Activations Task 1 = 1
 Deadline Misses Task 1 = 0
 Max/Avg/Min Run time Task  1 = 7.00 7.00 7.00 
-Max/Avg/Min Waiting time Task 1= 0.00 0.00 0.00 
+Max/Avg/Min Waiting time Task 1= 42.00 42.00 42.00 
 Nr Activations Task 2 = 1
 Deadline Misses Task 2 = 0
 Max/Avg/Min Run time Task  2 = 6.00 6.00 6.00 
-Max/Avg/Min Waiting time Task 2= 7.00 7.00 7.00 
+Max/Avg/Min Waiting time Task 2= 0.00 0.00 0.00 
 Nr Activations Task 3 = 1
 Deadline Misses Task 3 = 0
 Max/Avg/Min Run time Task  3 = 1.00 1.00 1.00 
-Max/Avg/Min Waiting time Task 3= 13.00 13.00 13.00 
+Max/Avg/Min Waiting time Task 3= 6.00 6.00 6.00 
 Nr Activations Task 4 = 1
 Deadline Misses Task 4 = 0
 Max/Avg/Min Run time Task  4 = 1.00 1.00 1.00 
-Max/Avg/Min Waiting time Task 4= 14.00 14.00 14.00 
+Max/Avg/Min Waiting time Task 4= 7.00 7.00 7.00 
 Nr Activations Task 5 = 1
 Deadline Misses Task 5 = 0
 Max/Avg/Min Run time Task  5 = 34.00 34.00 34.00 
-Max/Avg/Min Waiting time Task 5= 15.00 15.00 15.00 
+Max/Avg/Min Waiting time Task 5= 8.00 8.00 8.00 
 Nr Activations Task 6 = 1
 Deadline Misses Task 6 = 0
 Max/Avg/Min Run time Task  6 = 13.00 13.00 13.00 
