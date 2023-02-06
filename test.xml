@@ -2,9 +2,9 @@
 <simulation>
 	<time start="0" end="200" />	<!-- Simulation time -->
     <software>
-		<taskgenerator algorithm="UUnifast" utilization="0.5" nr_tasks="10" />
-		<scheduler algorithm="FIFO"/>
-	</software>
+        <taskgenerator algorithm="UUnifast" utilization="0.5" nr_tasks="10" />
+        <scheduler algorithm="FIFO"/>	<!-- add any relevant numbers, such as quantum time for RR -->
+    </software>
     <hardware>
     	<cpus>
     		<pe id="0" speed="1" />	<!-- Speed represents the multiplicator for the wcet. For instance

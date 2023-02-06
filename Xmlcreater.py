@@ -50,7 +50,11 @@ if root.tag == 'simulation':
             vec=[]
             vec = UUniFast(nr_tasks,utilization)
             for j in range (0, nr_tasks):
-                ET.SubElement(elem, 'task', realtime='false', type='sporadic', id =str(j+1), activation='0', wcet = str(int(vec[j]*total_time+time_start)), dependencies = '0')
+                wcet_value =int(vec[j]*total_time+time_start)
+                if wcet_value == 0:
+                    wcet_value = 1
+                ET.SubElement(elem, 'task', realtime='false', type='sporadic', 
+                id =str(j+1), activation='0', wcet = str(wcet_value), dependencies = '0')
             root[1].remove(taskgen)
             
 ET.indent(tree, space="\t", level=0)

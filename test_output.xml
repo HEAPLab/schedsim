@@ -2,16 +2,16 @@
 	<time start="0" end="200" />
 	<software>
 		<tasks>
-			<task realtime="false" type="sporadic" id="1" activation="0" wcet="1" dependencies="0" />
+			<task realtime="false" type="sporadic" id="1" activation="0" wcet="7" dependencies="0" />
 			<task realtime="false" type="sporadic" id="2" activation="0" wcet="6" dependencies="0" />
-			<task realtime="false" type="sporadic" id="3" activation="0" wcet="18" dependencies="0" />
-			<task realtime="false" type="sporadic" id="4" activation="0" wcet="2" dependencies="0" />
-			<task realtime="false" type="sporadic" id="5" activation="0" wcet="10" dependencies="0" />
-			<task realtime="false" type="sporadic" id="6" activation="0" wcet="31" dependencies="0" />
-			<task realtime="false" type="sporadic" id="7" activation="0" wcet="5" dependencies="0" />
-			<task realtime="false" type="sporadic" id="8" activation="0" wcet="6" dependencies="0" />
-			<task realtime="false" type="sporadic" id="9" activation="0" wcet="17" dependencies="0" />
-			<task realtime="false" type="sporadic" id="10" activation="0" wcet="0" dependencies="0" />
+			<task realtime="false" type="sporadic" id="3" activation="0" wcet="1" dependencies="0" />
+			<task realtime="false" type="sporadic" id="4" activation="0" wcet="1" dependencies="0" />
+			<task realtime="false" type="sporadic" id="5" activation="0" wcet="34" dependencies="0" />
+			<task realtime="false" type="sporadic" id="6" activation="0" wcet="13" dependencies="0" />
+			<task realtime="false" type="sporadic" id="7" activation="0" wcet="10" dependencies="0" />
+			<task realtime="false" type="sporadic" id="8" activation="0" wcet="9" dependencies="0" />
+			<task realtime="false" type="sporadic" id="9" activation="0" wcet="9" dependencies="0" />
+			<task realtime="false" type="sporadic" id="10" activation="0" wcet="6" dependencies="0" />
 		</tasks>
 		<scheduler algorithm="FIFO" />
 	</software>

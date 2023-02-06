@@ -160,7 +160,9 @@ class SchedulerEventWriter:
         while line:
             vec = str(line).split(",")
             index = int(vec[1]) - 1
-            index2 = int(vec[2])
+            index2 = int(vec[2]) - 1
+            if index2 == -1:
+                index2=0
             if vec[4] == 'S':
                 time_start[index][index2] = int(vec[0])
                 task_started[index] +=1
