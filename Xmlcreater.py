@@ -34,11 +34,12 @@ if root.tag == 'simulation':
     if root[1].tag == 'software':
         taskgen = root[1][0]
         scheduler = root[1][1]
+        periods = []
         if taskgen.tag == 'taskgenerator':
             algortihm = taskgen.attrib['algorithm']
             utilization = float(taskgen.attrib['utilization'])
             nr_tasks = int(taskgen.attrib['nr_tasks'])
-
+            periods = taskgen.attrib['periods'].split(',')
             schedulerType = scheduler.attrib['algorithm']
 
             root[1].remove(scheduler)
@@ -50,11 +51,13 @@ if root.tag == 'simulation':
             vec=[]
             vec = UUniFast(nr_tasks,utilization)
             for j in range (0, nr_tasks):
-                wcet_value =int(vec[j]*total_time+time_start)
+                period_task = int(periods[random.randint(0,len(periods)-1)])
+                wcet_value =int(vec[j]*period_task)
                 if wcet_value == 0:
                     wcet_value = 1
-                ET.SubElement(elem, 'task', realtime='false', type='sporadic', 
-                id =str(j+1), activation='0', wcet = str(wcet_value), dependencies = '0')
+                deadline_task = random.randint(1,5)*period_task
+                ET.SubElement(elem, 'task', realtime='true', type='periodic', 
+                id =str(j+1), period = str(period_task) , deadline = str(deadline_task) ,wcet = str(wcet_value), dependencies = '0')
             root[1].remove(taskgen)
             
 ET.indent(tree, space="\t", level=0)

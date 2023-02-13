@@ -187,15 +187,15 @@ class SchedulerEventWriter:
                 elif(time_start[j][i] != 0 and task_Missed[j][i] != 1):
                     run_time += time_final - time_start[j][i]
 
-        self.out.write("Actual System Runtime utilization= %.2f \n" % (run_time/(time_final-time_initial)) )
+        print("Actual System Runtime utilization= %.2f \n" % (run_time/(time_final-time_initial)) )
 
         for j in range(0, number_tasks):
 
             
             
 
-            self.out.write("Nr Activations Task %d = %d\n" % (j+1,task_Activation[j]))
-            self.out.write("Deadline Misses Task %d = %d\n" % (j+1, np.count_nonzero(task_Missed[j])))
+            print("Nr Activations Task %d = %d\n" % (j+1,task_Activation[j]))
+            print("Deadline Misses Task %d = %d\n" % (j+1, np.count_nonzero(task_Missed[j])))
 
 
             exec_time_task = 0
@@ -220,7 +220,8 @@ class SchedulerEventWriter:
             
 
             if(task_started[j]>0):
-                self.out.write("Max/Avg/Min Run time Task % d = %.2f %.2f %.2f \n" % (j+1, max_exec, (exec_time_task/task_started[j]), min_exec))
+                avg_runtime = (exec_time_task/task_started[j])
+                print("Max/Avg/Min Run time Task % d = %.2f %.2f %.2f \n" % (j+1, max_exec, avg_runtime, min_exec))
 
 
             
@@ -238,7 +239,8 @@ class SchedulerEventWriter:
                         min_slack = aux
 
             if(task_Deadline[j]>0):
-                self.out.write("Max/Avg/Min Slack time Task %d = %.2f %.2f %.2f \n" % (j+1,max_slac, (slack_time/task_Deadline[j]), min_slack))
+                avg_slac = (slack_time/task_Deadline[j])
+                print("Max/Avg/Min Slack time Task %d = %.2f %.2f %.2f \n" % (j+1,max_slac, avg_slac, min_slack))
 
             
             #Waiting Time
@@ -256,6 +258,7 @@ class SchedulerEventWriter:
 
             
             if(task_started[j]>0):
-                self.out.write("Max/Avg/Min Waiting time Task %d= %.2f %.2f %.2f \n" % (j+1,max_wai, (wai_time/task_started[j]), min_wai))
+                avg_waiting = (wai_time/task_started[j])
+                print("Max/Avg/Min Waiting time Task %d= %.2f %.2f %.2f \n" % (j+1,max_wai, avg_waiting, min_wai))
                     
         self.out.close()

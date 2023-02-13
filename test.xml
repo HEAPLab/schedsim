@@ -2,7 +2,7 @@
 <simulation>
 	<time start="0" end="200" />	<!-- Simulation time -->
     <software>
-        <taskgenerator algorithm="UUnifast" utilization="0.5" nr_tasks="10" />
+        <taskgenerator algorithm="UUnifast" utilization="0.5" nr_tasks="5" periods="20,30"/>
         <scheduler algorithm="FIFO"/>	<!-- add any relevant numbers, such as quantum time for RR -->
     </software>
     <hardware>
