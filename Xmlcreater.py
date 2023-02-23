@@ -52,7 +52,7 @@ if root.tag == 'simulation':
             vec = UUniFast(nr_tasks,utilization)
             for j in range (0, nr_tasks):
                 period_task = int(periods[random.randint(0,len(periods)-1)])
-                wcet_value =int(vec[j]*period_task)
+                wcet_value =int(round(vec[j]*period_task))
                 if wcet_value == 0:
                     wcet_value = 1
                 deadline_task = random.randint(1,5)*period_task
