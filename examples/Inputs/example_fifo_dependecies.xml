@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <simulation>
-	<time start="0" end="50" />	<!-- Simulation time -->
+	<time start="0" end="100" />	<!-- Simulation time -->
     <software>
         <tasks>
         	<!-- A task can be periodic or sporadic. The deadline parameter is relevant only for
         	     real-time tasks -->
-            <task realtime="true" type="sporadic" id="1" activation="0" deadline="50"  wcet="5" dependencies ='2'/>
-            <task realtime="true" type="periodic" id="2" period="20" deadline="30" wcet="10" dependencies = '3'/>
+            <task realtime="true" type="sporadic" id="1" activation="0" deadline="50"  wcet="5" dependencies ='3,2'/>
+            <task realtime="true" type="periodic" id="2" period="20" deadline="30" wcet="10" dependencies = '0'/>
             <task realtime="true" type="sporadic" id="3" activation="20" deadline="30" wcet="10" dependencies = '0'/>
         </tasks>
         <scheduler algorithm="FIFO"/>	<!-- add any relevant numbers, such as quantum time for RR -->

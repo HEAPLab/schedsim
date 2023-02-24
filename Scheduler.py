@@ -105,10 +105,13 @@ class NonPreemptive(Scheduler):
             if (event.task.dependencies != "0"):
                 tasks_done = 0 #couter for the number of tasks finished of the ones dependent upon
                 dependencies = event.task.dependencies.split(",")
+                flag_tasks_done = [False for z in range(len(dependencies))]
                 for task_before in dependencies:
                     for task_aux in self.events_done:
-                        if(int(task_before) == task_aux.task.id):
+                        aux_index = dependencies.index(task_before)
+                        if((int(task_before) == task_aux.task.id) and flag_tasks_done[aux_index] == False):
                             tasks_done +=1
+                            flag_tasks_done[aux_index] = True
                 if (tasks_done != len(dependencies)):
                     flag_dependencies= True
             if event.timestamp == time and self.executing is None and flag_dependencies == False:
