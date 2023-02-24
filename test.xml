@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <simulation>
-	<time start="0" end="200" />	<!-- Simulation time -->
+	<time start="0" end="500" />	<!-- Simulation time -->
     <software>
-        <taskgenerator algorithm="UUnifast" utilization="0.5" nr_tasks="5" periods="20,30"/>
+        <taskgenerator algorithm="UUnifast" utilization="0.5" nr_tasks="4" periods="50,100,200,300"/>
         <scheduler algorithm="FIFO"/>	<!-- add any relevant numbers, such as quantum time for RR -->
     </software>
     <hardware>
