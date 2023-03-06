@@ -337,3 +337,44 @@ class RoundRobin(Preemptive):
             if self.executing:
                 self.executing.executing_time += 1
             time += 1
+
+
+class EDF(Preemptive):
+
+    def __init__(self, output_file):
+        super().__init__(output_file)
+
+    def execute(self):
+        a = 1
+
+
+# Multiprocessor Scheduler
+
+class PEDF(NonPreemptive):
+
+    def __init__(self, output_file):
+        super().__init__(output_file)
+        self.name = 'P-EDF'
+
+    def execute(self):
+        # create as many partition as the core that we have
+        # for i in len(this.cores):
+
+        partitions = []
+
+        for i in range(len(self.cores)):
+            a = 0
+
+        # call edf as many times as the partitions created
+
+
+class GEDF(Preemptive):
+
+    def __init__(self, output_file):
+        super().__init__(output_file)
+
+    def execute(self):
+        c = 1
+
+
+
