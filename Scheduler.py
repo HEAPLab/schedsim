@@ -45,9 +45,15 @@ class Scheduler:
         elif len(self.cores) == 3:
 
             tasks = sorted(self.tasks.copy(), key=lambda x: x.deadline)
-            list_length = len(tasks)
-            part_size = list_length // 3
+            for t in tasks:
+                if not t.real_time:
+                    tasks.remove(t)
+                    tasks.append(t)
+
+            part_size = len(tasks) // 3
             tasks_list = [tasks[:part_size], tasks[part_size:2 * part_size], tasks[2 * part_size:]]
+
+            # non mette i non real time in fondo
 
             for i in range(len(tasks_list)):
                 for j in tasks_list[i]:
@@ -56,24 +62,28 @@ class Scheduler:
         # For 4 cores: divide events in type/deadline like an hybrid of the 2 previous way
         else:
             tasks = sorted(self.tasks.copy(), key=lambda x: x.deadline)
-            avg_deadline = 0
-            for t in self.tasks:
-                avg_deadline += t.deadline
-            avg_deadline /= len(self.tasks)
+            for t in tasks:
+                if not t.real_time:
+                    tasks.remove(t)
+                    tasks.append(t)
 
-            tasks_list = [tasks[:len(self.tasks)/2], tasks[len(self.tasks)/2:]]
+            tasks_list = [tasks[:len(self.tasks)//2], tasks[len(self.tasks)//2:]]
 
-            for i in tasks_list[0]:
-                if tasks_list[0][i].type == 'periodic':
-                    tasks_list[0][i].core = self.cores[0].id
+
+
+            # non mette i non real time in fondo
+
+            for task in tasks_list[0]:
+                if task.type == 'periodic':
+                    task.core = self.cores[0].id
                 else:
-                    tasks_list[0][i].core = self.cores[1].id
+                    task.core = self.cores[1].id
 
-            for i in tasks_list[1]:
-                if tasks_list[1][i].type == 'periodic':
-                    tasks_list[1][i].core = self.cores[2].id
+            for task in tasks_list[1]:
+                if task.type == 'periodic':
+                    task.core = self.cores[2].id
                 else:
-                    tasks_list[1][i].core = self.cores[3].id
+                    task.core = self.cores[3].id
 
     def get_all_arrivals(self):
         arrival_events = []
