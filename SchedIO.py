@@ -39,8 +39,8 @@ def import_file(file_path, output_file):
                         # Multiprocessor scheduler
                         if _scheduler.attrib['algorithm'] == 'PEDF':
                             scheduler = Scheduler.PEDF(output_file)
-                        if _scheduler.attrib['algorithm'] == 'GEDF':
-                            scheduler = Scheduler.GEDF(output_file)
+                        if _scheduler.attrib['algorithm'] == 'PFP':
+                            scheduler = Scheduler.PFP(output_file)
 
                     elif count_scheduler > 1:
                         raise Exception(
@@ -120,7 +120,7 @@ class SchedulerEventWriter:
         self.out.write(
             str(scheduler_event.timestamp) + ',' + str(scheduler_event.task.id) + ',' +
             str(scheduler_event.job) + ',' + str(scheduler_event.processor) + ',' +
-            str(scheduler_event.type) + ',' + str(scheduler_event.extra) + '\n')
+            str(scheduler_event.type) + ',' + str(scheduler_event.extra) + ',' + str(scheduler_event.task.priority) + '\n')
 
     def terminate_write(self):
         self.out.close()

@@ -15,3 +15,8 @@ class Task:
         self.first_time_executing = True
         # Core:
         self.core = None
+        # Priority for FP
+        self.priority = 0
+
+    def set_priority(self, priority):
+        self.priority = priority

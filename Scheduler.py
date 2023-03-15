@@ -53,8 +53,6 @@ class Scheduler:
             part_size = len(tasks) // 3
             tasks_list = [tasks[:part_size], tasks[part_size:2 * part_size], tasks[2 * part_size:]]
 
-            # non mette i non real time in fondo
-
             for i in range(len(tasks_list)):
                 for j in tasks_list[i]:
                     tasks_list[i][j].core = self.cores[i].id
@@ -69,10 +67,6 @@ class Scheduler:
 
             tasks_list = [tasks[:len(self.tasks)//2], tasks[len(self.tasks)//2:]]
 
-
-
-            # non mette i non real time in fondo
-
             for task in tasks_list[0]:
                 if task.type == 'periodic':
                     task.core = self.cores[0].id
@@ -85,8 +79,67 @@ class Scheduler:
                 else:
                     task.core = self.cores[3].id
 
+    def create_partitions_fp(self):
+
+        weight = 100
+
+        priority = []
+        for task in self.tasks:
+            if task.real_time:
+                priority.append(task.deadline + task.wcet + weight)
+            else:
+                priority.append(task.deadline + task.wcet)
+
+        min_value = min(priority)
+        max_value = max(priority)
+
+        # calculate the range of the data
+        data_range = max_value - min_value
+
+        # calculate the bin size for each value
+        bin_size = data_range / 4
+
+        for number, task in zip(priority, self.tasks):
+            # calculate the bin number for the value
+            bin_number = int((number - min_value) / bin_size) + 1
+            bin_number = min(max(bin_number, 1), 4)
+
+            # add the bin number to the discretized list
+            task.set_priority(bin_number)
+
+        # For 2 cores we make 2 partition: periodic and sporadic
+        if len(self.cores) == 2:
+            for task in self.tasks:
+                if task.priority <= 2:
+                    task.core = self.cores[0].id
+                else:
+                    task.core = self.cores[1].id
+
+        # For 3 cores: deadline partition
+        elif len(self.cores) == 3:
+            for task in self.tasks:
+                if task.priority <= 2:
+                    task.core = self.cores[0].id
+                elif task.priority == 3:
+                    task.core = self.cores[1].id
+                else:
+                    task.core = self.cores[2].id
+
+        # For 4 cores: divide events in type/deadline like an hybrid of the 2 previous way
+        else:
+            for task in self.tasks:
+                if task.priority == 1:
+                    task.core = self.cores[0].id
+                elif task.priority == 2:
+                    task.core = self.cores[1].id
+                elif task.priority == 3:
+                    task.core = self.cores[2].id
+                else:
+                    task.core = self.cores[3].id
+
     def get_all_arrivals(self):
         arrival_events = []
+
         for task in self.tasks:
             # Here you can add the code to choose between different cores:
             if len(self.cores) == 1:
@@ -94,8 +147,8 @@ class Scheduler:
             else:
                 if self.name == 'PEDF':
                     self.create_partitions()
-                elif self.name == 'GEDF':
-                    a = 1
+                elif self.name == 'PFP':
+                    self.create_partitions_fp()
 
             # ------------------------------- #
             if task.type == 'periodic':
@@ -410,21 +463,59 @@ class EDF(Preemptive):
 
     def __init__(self, output_file):
         super().__init__(output_file)
-
-    def execute(self):
-        a = 1
+        self.name = "EDF"
 
 
 # Multiprocessor Scheduler
 
-class PEDF(NonPreemptive):
+class PEDF(Preemptive):
 
     def __init__(self, output_file):
         super().__init__(output_file)
         self.name = 'PEDF'
 
+    def calculate_deadline_time(self):
+        for event in self.start_events:
+            event.time_to_deadline = event.task.deadline - event.executing_time
+
+    def choose_executed(self, time):
+        if len(self.start_events) > 0:
+
+            self.start_events.sort(key=lambda x: x.time_to_deadline)
+            for e in self.start_events:
+                if not e.task.real_time:
+                    self.start_events.remove(e)
+                    self.start_events.append(e)
+            sevent = self.start_events.copy()
+            # Non task is executed:
+            for p in self.cores:
+                for event in sevent:
+                    if p.id == event.processor:
+                        if p.executing is None:
+                            event.timestamp = time
+                            self.output_file.add_scheduler_event(event)
+                            p.executing = event
+                            # Create deadline event:
+                            self.create_deadline_event(event)
+                        # Change of task:
+                        elif p.executing != event and p.executing.time_to_deadline > event.time_to_deadline and \
+                                event.task.real_time:
+                            # Create finish event of the current task in execution:
+                            finish_timestamp = time
+                            finish_event = SchedEvent.ScheduleEvent(
+                                finish_timestamp, p.executing.task, SchedEvent.EventType.finish.value)
+                            finish_event.job = p.executing.job
+                            self.output_file.add_scheduler_event(finish_event)
+                            # Change task:
+                            event.timestamp = time
+                            self.output_file.add_scheduler_event(event)
+                            p.executing = event
+                            # Create deadline event:
+                            if event.task.first_time_executing:
+                                self.create_deadline_event(event)
+                        sevent.pop(0)
+
     def execute(self):
-        # temporarily fifo sched just to test, then we have to call EDF
         self.arrival_events = self.get_all_arrivals()
 
         time = self.start
@@ -432,30 +523,106 @@ class PEDF(NonPreemptive):
             self.find_finish_events(time)
             self.find_deadline_events(time)
             self.find_arrival_event(time)
-            self.find_start_events(time)
+            self.calculate_deadline_time()
+            self.choose_executed(time)
+            for p in self.cores:
+                if p.executing:
+                    p.executing.executing_time += 1
             time += 1
 
-        self.output_file.terminate_write()
 
-
-
-
-
-
-class GEDF(Preemptive):
+class PFP(Preemptive):
 
     def __init__(self, output_file):
         super().__init__(output_file)
+        self.name = 'PFP'
+    def choose_executed(self, time):
+        if len(self.start_events) > 0:
+            sevent = self.start_events.copy()
+            sevent.sort(key=lambda x: x.task.priority, reverse=True)
+
+            # Non task is executed:
+            for p in self.cores:
+                for event in sevent:
+                    if p.id == event.processor:
+                        if p.executing is None:
+                            event.timestamp = time
+                            self.output_file.add_scheduler_event(event)
+                            p.executing = event
+                            # Create deadline event:
+                            self.create_deadline_event(event)
+                        # Change of task:
+                        elif p.executing != event and p.executing.task.priority <= event.task.priority:
+                            # Create finish event of the current task in execution:
+                            finish_timestamp = time
+                            finish_event = SchedEvent.ScheduleEvent(
+                                finish_timestamp, p.executing.task, SchedEvent.EventType.finish.value)
+                            finish_event.job = p.executing.job
+                            self.output_file.add_scheduler_event(finish_event)
+                            # Change task:
+                            event.timestamp = time
+                            self.output_file.add_scheduler_event(event)
+                            p.executing = event
+                            # Create deadline event:
+                            if event.task.first_time_executing:
+                                self.create_deadline_event(event)
+                        sevent.pop(0)
 
     def execute(self):
-        c = 1
+        self.arrival_events = self.get_all_arrivals()
 
+        time = self.start
+        while time <= self.end:
+            self.find_finish_events(time)
+            self.find_deadline_events(time)
+            self.find_arrival_event(time)
+            self.choose_executed(time)
+            for p in self.cores:
+                if p.executing:
+                    p.executing.executing_time += 1
+            time += 1
 
-'''
-XML be like:
-
-<task real-time="true" type="periodic" id="1" period="10" deadline="50"  wcet="5" priority="1" />
-
-Priority goes from 1 to 5 (1 high 5 low)
-
-'''
+# class GEDF(NonPreemptive):
+#
+#     def __init__(self, output_file):
+#         super().__init__(output_file)
+#         self.name = 'GEDF'
+#
+#     def execute(self):
+#         self.arrival_events = self.get_all_arrivals()
+#         # self.arrival_events = sorted(self.arrival_events, key=lambda x: x.task.deadline)
+#
+#         for e in self.arrival_events:
+#             if not e.task.real_time:
+#                 self.arrival_events.remove(e)
+#                 self.arrival_events.append(e)
+#
+#         time = self.start
+#
+#         while time <= self.end:
+#             self.find_finish_events(time)
+#             self.find_deadline_events(time)
+#             self.find_arrival_event(time)
+#
+#             c = 0
+#             for e in self.start_events:
+#                 if c < len(self.cores):
+#                     for i in range(len(self.cores)):
+#                         if self.cores[i].executing is None:
+#                             e.task.core = self.cores[i].id
+#                             e.processor = self.cores[i].id
+#                             c+=1
+#                             break
+#                         else:
+#                             c+=1
+#                     # c += 1
+#
+#             self.find_start_events(time)
+#
+#
+#
+#             time += 1
+#
+#         self.output_file.terminate_write()
+#
+#
