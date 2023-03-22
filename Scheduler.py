@@ -474,18 +474,15 @@ class PEDF(Preemptive):
         super().__init__(output_file)
         self.name = 'PEDF'
 
-    def calculate_deadline_time(self):
-        for event in self.start_events:
-            event.time_to_deadline = event.task.deadline - event.executing_time
-
     def choose_executed(self, time):
         if len(self.start_events) > 0:
 
-            self.start_events.sort(key=lambda x: x.time_to_deadline)
+            self.start_events.sort(key=lambda x: x.deadline_sort)
             for e in self.start_events:
                 if not e.task.real_time:
                     self.start_events.remove(e)
                     self.start_events.append(e)
+
             sevent = self.start_events.copy()
             # Non task is executed:
             for p in self.cores:
@@ -498,7 +495,7 @@ class PEDF(Preemptive):
                             # Create deadline event:
                             self.create_deadline_event(event)
                         # Change of task:
-                        elif p.executing != event and p.executing.time_to_deadline > event.time_to_deadline and \
+                        elif p.executing != event and p.executing.deadline_sort > event.deadline_sort and \
                                 event.task.real_time:
                             # Create finish event of the current task in execution:
                             finish_timestamp = time
@@ -523,7 +520,6 @@ class PEDF(Preemptive):
             self.find_finish_events(time)
             self.find_deadline_events(time)
             self.find_arrival_event(time)
-            self.calculate_deadline_time()
             self.choose_executed(time)
             for p in self.cores:
                 if p.executing:

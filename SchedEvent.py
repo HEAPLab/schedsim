@@ -28,5 +28,8 @@ class ScheduleEvent:
         # SRTF facilities:
         self.remaining_time = self.task.wcet
         self.executing_time = 0
-        # EDF Facilities
-        self.time_to_deadline = 0
+        # EDF
+        if _type == 'S':
+            self.deadline_sort = timestamp + task.deadline
+        else:
+            self.deadline_sort = 0

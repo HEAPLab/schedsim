@@ -120,7 +120,8 @@ class SchedulerEventWriter:
         self.out.write(
             str(scheduler_event.timestamp) + ',' + str(scheduler_event.task.id) + ',' +
             str(scheduler_event.job) + ',' + str(scheduler_event.processor) + ',' +
-            str(scheduler_event.type) + ',' + str(scheduler_event.extra) + ',' + str(scheduler_event.task.priority) + '\n')
+            str(scheduler_event.type) + ',' + str(scheduler_event.extra) + ',' + str(scheduler_event.task.priority) +
+            ',' + str(scheduler_event.deadline_sort) + '\n')
 
     def terminate_write(self):
         self.out.close()
