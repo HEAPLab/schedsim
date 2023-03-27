@@ -2,6 +2,7 @@ import xml.etree.ElementTree as ET
 import Task
 import Scheduler
 import Cpu
+from Noises import *
 
 
 # The idea of this function was based on SchedSim v1:
@@ -35,7 +36,6 @@ def import_file(file_path, output_file):
 
                         if _scheduler.attrib['algorithm'] == 'EDF':
                             scheduler = Scheduler.EDF(output_file)
-
                         # Multiprocessor scheduler
                         if _scheduler.attrib['algorithm'] == 'PEDF':
                             scheduler = Scheduler.PEDF(output_file)
@@ -76,13 +76,44 @@ def import_file(file_path, output_file):
                     if (_wcet > _period != -1) or (_deadline != -1 and _deadline < _wcet):
                         raise Exception(
                             'inconsistent values saved in the file')
+                    _noise = None
 
                     task = Task.Task(_real_time, _type, _id, _period, _activation, _deadline, _wcet)
                     scheduler.tasks.append(task)
                     count_task += 1
                 if count_task == 0:
                     raise Exception(
-                        'non task recognized in the file')
+                        'no tasks recognized in the file')
+                noises_root = root_node[1][1]
+                for noise_leaf in noises_root:
+                    #Default to -1
+                    assigned_task = -1
+
+                    #This for each assigns the Noise to the correct task
+                    for task in scheduler.tasks:
+                        if (task.id == int(noise_leaf.attrib['task-id'])):
+                            assigned_task = task.id
+                            if(noise_leaf.attrib['type']=="gauss"):
+                                noise_mean = int(noise_leaf.attrib['mean'])
+                                noise_std = int(noise_leaf.attrib['std'])
+                                task.noises.append(GaussianNoise(task.id, noise_mean, noise_std))
+                            elif(noise_leaf.attrib['type']=="uniform"):
+                                noise_low = int(noise_leaf.attrib['low_end'])
+                                noise_high = int(noise_leaf.attrib['high_end'])
+                                if(noise_high<noise_low):
+                                    raise Exception(
+                                'Uniform ends are not valid')
+                                task.noises.append(UniformNoise(task.id, noise_low, noise_high))
+
+
+
+                            else:
+                                raise Exception(
+                                'Noise type not recognized')
+                    if assigned_task==-1:
+                        raise Exception(
+                            'A noise is not being assigned to a task')
+
             else:
                 raise Exception(
                     'non scheduler recognized in the file')

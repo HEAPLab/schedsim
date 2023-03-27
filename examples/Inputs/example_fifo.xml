@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <simulation>
-	<time start="0" end="50" />	<!-- Simulation time -->
+	<time start="0" end="100" />	<!-- Simulation time -->
     <software>
         <tasks>
         	<!-- A task can be periodic or sporadic. The deadline parameter is relevant only for
         	     real-time tasks -->
             <task real-time="true" type="periodic" id="1" period="10" deadline="50"  wcet="5" />
             <task real-time="true" type="periodic" id="2" period="20" deadline="30" wcet="10" />
-            <task real-time="true" type="sporadic" id="3" activation="5" deadline="50"  wcet="20" />
+            <task real-time="true" type="sporadic" id="3" activation="5" deadline="50"  wcet="20"/>
             <task real-time="false" type="sporadic" id="4" activation="10" wcet="15" />
         </tasks>
+        <noises>
+            <noise task-id="1" type="gauss" mean="1" std="2"/>
+            <noise task-id="2" type="uniform" low_end="1" high_end="3"/>
+        </noises>
         <scheduler algorithm="FIFO"/>	<!-- add any relevant numbers, such as quantum time for RR -->
     </software>
     <hardware>

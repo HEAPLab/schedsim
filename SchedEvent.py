@@ -33,3 +33,11 @@ class ScheduleEvent:
             self.deadline_sort = timestamp + task.deadline
         else:
             self.deadline_sort = 0
+        #Noises
+        self.dynamic_wcet = task.wcet
+        for noise in task.noises:
+            self.dynamic_wcet = self.dynamic_wcet+ noise.generate()
+
+
+
+

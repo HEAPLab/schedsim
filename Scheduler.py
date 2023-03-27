@@ -215,8 +215,9 @@ class NonPreemptive(Scheduler):
             if event.timestamp == time and self.cores[int(event.processor)].executing is None:
                 self.output_file.add_scheduler_event(event)
                 self.cores[int(event.processor)].executing = event
-                # Create finish event:
-                finish_timestamp = event.timestamp + event.task.wcet
+                # Create finish event, if noise are present they are added to the finish timestamp:
+                finish_timestamp = event.timestamp + event.dynamic_wcet
+
                 finish_event = SchedEvent.ScheduleEvent(
                     finish_timestamp, event.task, SchedEvent.EventType.finish.value)
                 finish_event.job = event.job
@@ -229,7 +230,7 @@ class NonPreemptive(Scheduler):
                     deadline_event.job = event.job
                     self.deadline_events.append(deadline_event)
             elif event.timestamp == time and self.cores[int(event.processor)].executing:
-                event.timestamp += (self.cores[int(event.processor)].executing.timestamp + self.cores[int(event.processor)].executing.task.wcet - event.timestamp)
+                event.timestamp += (self.cores[int(event.processor)].executing.timestamp + self.cores[int(event.processor)].executing.dynamic_wcet - event.timestamp)
             if event.timestamp > time:
                 helper_list.append(event)
         self.start_events = helper_list
@@ -247,8 +248,8 @@ class Preemptive(Scheduler):
     def find_finish_events(self, time):
         for p in self.cores:
             if p.executing:
-                if p.executing.executing_time == p.executing.task.wcet:
-                    # Create finish event:
+                if p.executing.executing_time == p.executing.dynamic_wcet:
+                    # finish event:
                     finish_event = SchedEvent.ScheduleEvent(
                         time, p.executing.task, SchedEvent.EventType.finish.value)
                     finish_event.job = p.executing.job
@@ -303,7 +304,7 @@ class SJF(NonPreemptive):
             self.find_deadline_events(time)
             self.find_arrival_event(time)
             # Sort by wcet:
-            self.start_events.sort(key=lambda x: x.task.wcet)
+            self.start_events.sort(key=lambda x: x.dynamic_wcet)
             self.find_start_events(time)
             time += 1
 
@@ -334,7 +335,7 @@ class HRRN(NonPreemptive):
         for event in self.start_events:
             if event.init <= time:
                 w = time - event.init
-                c = event.task.wcet
+                c = event.dynamic_wcet
                 event.response_ratio = (w + c)/c
 
 
@@ -346,7 +347,7 @@ class SRTF(Preemptive):
 
     def calculate_remaining_time(self):
         for event in self.start_events:
-            event.remaining_time = event.task.wcet - event.executing_time
+            event.remaining_time = event.dynamic_wcet - event.executing_time
 
     def choose_executed(self, time):
         if len(self.start_events) > 0:
@@ -464,6 +465,55 @@ class EDF(Preemptive):
     def __init__(self, output_file):
         super().__init__(output_file)
         self.name = "EDF"
+
+    def choose_executed(self, time):
+        if len(self.start_events) > 0:
+            self.start_events.sort(key=lambda x: x.deadline_sort)
+            for e in self.start_events:
+                if not e.task.real_time:
+                    self.start_events.remove(e)
+                    self.start_events.append(e)
+
+            # Non task is executed:
+            for p in self.cores:
+                if p.executing is None:
+                    event = self.start_events[0]
+                    event.timestamp = time
+                    self.output_file.add_scheduler_event(event)
+                    p.executing = event
+                    # Create deadline event:
+                    self.create_deadline_event(event)
+                # Change of task:
+                elif p.executing.deadline_sort > self.start_events[0].deadline_sort and \
+                        p.executing != self.start_events[0]:
+                    # Create finish event of the current task in execution:
+                    finish_timestamp = time
+                    finish_event = SchedEvent.ScheduleEvent(
+                        finish_timestamp, p.executing.task, SchedEvent.EventType.finish.value)
+                    finish_event.job = p.executing.job
+                    self.output_file.add_scheduler_event(finish_event)
+                    # Change task:
+                    event = self.start_events[0]
+                    event.timestamp = time
+                    self.output_file.add_scheduler_event(event)
+                    p.executing = event
+                    # Create deadline event:
+                    if event.task.first_time_executing:
+                        self.create_deadline_event(event)
+
+    def execute(self):
+        self.arrival_events = self.get_all_arrivals()
+
+        time = self.start
+        while time <= self.end:
+            self.find_finish_events(time)
+            self.find_deadline_events(time)
+            self.find_arrival_event(time)
+            self.choose_executed(time)
+            for p in self.cores:
+                if p.executing:
+                    p.executing.executing_time += 1
+            time += 1
 
 
 # Multiprocessor Scheduler

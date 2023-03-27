@@ -17,6 +17,8 @@ class Task:
         self.core = None
         # Priority for FP
         self.priority = 0
+        #Noises for dyamic wcet
+        self.noises = []
 
     def set_priority(self, priority):
         self.priority = priority
