@@ -176,6 +176,14 @@ class Scheduler:
                     event.timestamp, event.task, SchedEvent.EventType.start.value)
                 start_event.job = event.job
                 self.start_events.append(start_event)
+                # Create deadline event:
+                if event.task.real_time:
+                    deadline_timestamp = event.timestamp + event.task.deadline
+                    deadline_event = SchedEvent.ScheduleEvent(
+                        deadline_timestamp, event.task, SchedEvent.EventType.deadline.value)
+                    deadline_event.job = event.job
+                    self.deadline_events.append(deadline_event)
+
             elif event.timestamp > time:
                 helper_list.append(event)
         self.arrival_events = helper_list
@@ -222,13 +230,13 @@ class NonPreemptive(Scheduler):
                     finish_timestamp, event.task, SchedEvent.EventType.finish.value)
                 finish_event.job = event.job
                 self.finish_events.append(finish_event)
-                # Create deadline event:
-                if event.task.real_time:
-                    deadline_timestamp = event.timestamp + event.task.deadline
-                    deadline_event = SchedEvent.ScheduleEvent(
-                        deadline_timestamp, event.task, SchedEvent.EventType.deadline.value)
-                    deadline_event.job = event.job
-                    self.deadline_events.append(deadline_event)
+                # # Create deadline event:
+                # if event.task.real_time:
+                #     deadline_timestamp = event.timestamp + event.task.deadline
+                #     deadline_event = SchedEvent.ScheduleEvent(
+                #         deadline_timestamp, event.task, SchedEvent.EventType.deadline.value)
+                #     deadline_event.job = event.job
+                #     self.deadline_events.append(deadline_event)
             elif event.timestamp == time and self.cores[int(event.processor)].executing:
                 event.timestamp += (self.cores[int(event.processor)].executing.timestamp + self.cores[int(event.processor)].executing.dynamic_wcet - event.timestamp)
             if event.timestamp > time:
@@ -615,6 +623,10 @@ class PFP(Preemptive):
                         sevent.pop(0)
 
     def execute(self):
+        '''
+
+        jgjhghghjg
+        '''
         self.arrival_events = self.get_all_arrivals()
 
         time = self.start
@@ -627,48 +639,3 @@ class PFP(Preemptive):
                 if p.executing:
                     p.executing.executing_time += 1
             time += 1
-
-# class GEDF(NonPreemptive):
-#
-#     def __init__(self, output_file):
-#         super().__init__(output_file)
-#         self.name = 'GEDF'
-#
-#     def execute(self):
-#         self.arrival_events = self.get_all_arrivals()
-#         # self.arrival_events = sorted(self.arrival_events, key=lambda x: x.task.deadline)
-#
-#         for e in self.arrival_events:
-#             if not e.task.real_time:
-#                 self.arrival_events.remove(e)
-#                 self.arrival_events.append(e)
-#
-#         time = self.start
-#
-#         while time <= self.end:
-#             self.find_finish_events(time)
-#             self.find_deadline_events(time)
-#             self.find_arrival_event(time)
-#
-#             c = 0
-#             for e in self.start_events:
-#                 if c < len(self.cores):
-#                     for i in range(len(self.cores)):
-#                         if self.cores[i].executing is None:
-#                             e.task.core = self.cores[i].id
-#                             e.processor = self.cores[i].id
-#                             c+=1
-#                             break
-#                         else:
-#                             c+=1
-#                     # c += 1
-#
-#             self.find_start_events(time)
-#
-#
-#
-#             time += 1
-#
-#         self.output_file.terminate_write()
-#
-#
