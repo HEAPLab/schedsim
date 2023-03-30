@@ -173,14 +173,13 @@ class Scheduler:
             if event.timestamp == time:
                 self.output_file.add_scheduler_event(event)
                 start_event = SchedEvent.ScheduleEvent(
-                    event.timestamp, event.task, SchedEvent.EventType.start.value)
+                    event.timestamp, event.task, SchedEvent.EventType.start.value, event.deadline_sort)
                 start_event.job = event.job
                 self.start_events.append(start_event)
                 # Create deadline event:
                 if event.task.real_time:
-                    deadline_timestamp = event.timestamp + event.task.deadline
                     deadline_event = SchedEvent.ScheduleEvent(
-                        deadline_timestamp, event.task, SchedEvent.EventType.deadline.value)
+                        event.timestamp, event.task, SchedEvent.EventType.deadline.value, event.deadline_sort)
                     deadline_event.job = event.job
                     self.deadline_events.append(deadline_event)
 
@@ -191,9 +190,15 @@ class Scheduler:
     def find_deadline_events(self, time):
         helper_list = []
         for event in self.deadline_events:
-            if event.timestamp == time:
+            if event.deadline_sort == time:
+                if not event.finished:
+                    event.set_type(SchedEvent.EventType.deadline_miss.value)
+                    # TODO: if deadline miss remove from starting_event and check if it is in executing and remove it
+
+
+                event.timestamp = time
                 self.output_file.add_scheduler_event(event)
-            elif event.timestamp > time:
+            elif event.deadline_sort > time:
                 helper_list.append(event)
         self.deadline_events = helper_list
 
@@ -213,6 +218,9 @@ class NonPreemptive(Scheduler):
             if event.timestamp == time:
                 self.output_file.add_scheduler_event(event)
                 self.cores[int(event.processor)].executing = None
+                for e in self.deadline_events:
+                    if e.timestamp == event.timestamp and e.task == event.task and e.deadline_sort == event.deadline_sort:
+                        e.finished = True
             elif event.timestamp > time:
                 helper_list.append(event)
         self.finish_events = helper_list
@@ -227,16 +235,10 @@ class NonPreemptive(Scheduler):
                 finish_timestamp = event.timestamp + event.dynamic_wcet
 
                 finish_event = SchedEvent.ScheduleEvent(
-                    finish_timestamp, event.task, SchedEvent.EventType.finish.value)
+                    finish_timestamp, event.task, SchedEvent.EventType.finish.value, event.deadline_sort)
                 finish_event.job = event.job
                 self.finish_events.append(finish_event)
-                # # Create deadline event:
-                # if event.task.real_time:
-                #     deadline_timestamp = event.timestamp + event.task.deadline
-                #     deadline_event = SchedEvent.ScheduleEvent(
-                #         deadline_timestamp, event.task, SchedEvent.EventType.deadline.value)
-                #     deadline_event.job = event.job
-                #     self.deadline_events.append(deadline_event)
+
             elif event.timestamp == time and self.cores[int(event.processor)].executing:
                 event.timestamp += (self.cores[int(event.processor)].executing.timestamp + self.cores[int(event.processor)].executing.dynamic_wcet - event.timestamp)
             if event.timestamp > time:
@@ -262,6 +264,9 @@ class Preemptive(Scheduler):
                         time, p.executing.task, SchedEvent.EventType.finish.value)
                     finish_event.job = p.executing.job
                     self.output_file.add_scheduler_event(finish_event)
+                    for e in self.deadline_events:
+                        if e.timestamp == p.executing.timestamp and e.task == p.executing.task and e.deadline_sort == p.executing.deadline_sort:
+                            e.finished = True
                     # Delete from start_events:
                     self.start_events.remove(p.executing)
                     # Free execute:
@@ -269,9 +274,8 @@ class Preemptive(Scheduler):
 
     def create_deadline_event(self, event):
         if event.task.real_time:
-            deadline_timestamp = event.timestamp + event.task.deadline
             deadline_event = SchedEvent.ScheduleEvent(
-                deadline_timestamp, event.task, SchedEvent.EventType.deadline.value)
+                event.timestamp, event.task, SchedEvent.EventType.deadline.value, event.deadline_sort)
             deadline_event.job = event.job
             self.deadline_events.append(deadline_event)
             event.task.first_time_executing = False
@@ -551,7 +555,7 @@ class PEDF(Preemptive):
                             self.output_file.add_scheduler_event(event)
                             p.executing = event
                             # Create deadline event:
-                            self.create_deadline_event(event)
+                            # self.create_deadline_event(event)
                         # Change of task:
                         elif p.executing != event and p.executing.deadline_sort > event.deadline_sort and \
                                 event.task.real_time:

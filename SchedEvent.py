@@ -15,7 +15,7 @@ class EventType(Enum):
 
 class ScheduleEvent:
 
-    def __init__(self, timestamp, task, _type):
+    def __init__(self, timestamp, task, _type, ds=0):
         self.timestamp = timestamp
         self.task = task
         self.job = 0
@@ -32,13 +32,14 @@ class ScheduleEvent:
         if _type == 'A':
             self.deadline_sort = timestamp + task.deadline
         else:
-            self.deadline_sort = 0
+            self.deadline_sort = ds
         # Noises
         self.dynamic_wcet = task.wcet
         if _type == 'A':  # This if is to avoid noise generation when it isn't needed
             for noise in task.noises:
                 self.dynamic_wcet = self.dynamic_wcet + noise.generate()
 
-    def typeSet(self, _type):
+        self.finished = False
 
+    def set_type(self, _type):
         self.type = _type
