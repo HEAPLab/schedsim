@@ -194,6 +194,16 @@ class Scheduler:
                 if not event.finished:
                     event.set_type(SchedEvent.EventType.deadline_miss.value)
                     # TODO: if deadline miss remove from starting_event and check if it is in executing and remove it
+                    for e in self.arrival_events:
+                        if e.task == event.task and e.deadline_sort == event.deadline_sort:
+                            self.arrival_events.remove(e)
+
+                    for p in self.cores:
+                        if p.executing:
+                            if p.executing.task == event.task and p.executing.deadline_sort == event.deadline_sort:
+                                self.start_events.remove(p.executing)
+                                # Free execute:
+                                p.executing = None
 
 
                 event.timestamp = time
