@@ -151,8 +151,10 @@ class SchedulerEventWriter:
         self.out.write(
             str(scheduler_event.timestamp) + ',' + str(scheduler_event.task.id) + ',' +
             str(scheduler_event.job) + ',' + str(scheduler_event.processor) + ',' +
-            str(scheduler_event.type) + ',' + str(scheduler_event.extra) + ',' + '\n')
-            # + str(scheduler_event.task.priority)
+            str(scheduler_event.type) + ',' + str(scheduler_event.extra) + '\n')
+
+        # if you want to print the priority in the output file just add this in the above line of code
+        # + str(scheduler_event.task.priority)
 
     def terminate_write(self):
         self.out.close()

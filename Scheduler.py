@@ -193,7 +193,7 @@ class Scheduler:
             if event.deadline_sort == time:
                 if not event.finished:
                     event.set_type(SchedEvent.EventType.deadline_miss.value)
-                    # TODO: if deadline miss remove from starting_event and check if it is in executing and remove it
+
                     for e in self.arrival_events:
                         if e.task == event.task and e.deadline_sort == event.deadline_sort:
                             self.arrival_events.remove(e)
@@ -205,6 +205,9 @@ class Scheduler:
                                 # Free execute:
                                 p.executing = None
 
+                    for e in self.start_events:
+                        if e.task == event.task and e.deadline_sort == event.deadline_sort:
+                            self.start_events.remove(e)
 
                 event.timestamp = time
                 self.output_file.add_scheduler_event(event)
@@ -229,7 +232,7 @@ class NonPreemptive(Scheduler):
                 self.output_file.add_scheduler_event(event)
                 self.cores[int(event.processor)].executing = None
                 for e in self.deadline_events:
-                    if e.timestamp == event.timestamp and e.task == event.task and e.deadline_sort == event.deadline_sort:
+                    if e.task == event.task and e.deadline_sort == event.deadline_sort:
                         e.finished = True
             elif event.timestamp > time:
                 helper_list.append(event)
@@ -275,7 +278,7 @@ class Preemptive(Scheduler):
                     finish_event.job = p.executing.job
                     self.output_file.add_scheduler_event(finish_event)
                     for e in self.deadline_events:
-                        if e.timestamp == p.executing.timestamp and e.task == p.executing.task and e.deadline_sort == p.executing.deadline_sort:
+                        if e.task == p.executing.task and e.deadline_sort == p.executing.deadline_sort:
                             e.finished = True
                     # Delete from start_events:
                     self.start_events.remove(p.executing)
