@@ -37,6 +37,7 @@ class ScheduleEvent:
         self.dynamic_wcet = task.wcet
         for noise in task.noises:
             self.dynamic_wcet = self.dynamic_wcet + noise.generate()
+
         self.finished = False
     def set_type(self, _type):
         self.type = _type

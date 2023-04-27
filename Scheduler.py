@@ -201,9 +201,11 @@ class Scheduler:
                     for p in self.cores:
                         if p.executing:
                             if p.executing.task == event.task and p.executing.deadline_sort == event.deadline_sort:
-                                self.start_events.remove(p.executing)
-                                # Free execute:
+                                if event.finished:
+                                    self.start_events.remove(p.executing)
+                                    # Free execute:
                                 p.executing = None
+
 
                     for e in self.start_events:
                         if e.task == event.task and e.deadline_sort == event.deadline_sort:
