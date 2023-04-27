@@ -10,6 +10,10 @@
             <task real-time="true" type="sporadic" id="3" activation="5" deadline="50"  wcet="20" />
             <task real-time="false" type="sporadic" id="4" activation="10" wcet="15" />
         </tasks>
+        <noises>
+            <noise task-id="1" type="gauss" mean="1" std="1"/>
+            <noise task-id="2" type="uniform" low_end="0" high_end="2"/>
+        </noises>
         <scheduler algorithm="EDF"/>	<!-- add any relevant numbers, such as quantum time for RR -->
     </software>
     <hardware>
