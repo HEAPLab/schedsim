@@ -1,11 +1,10 @@
-# this class is meant to implement a noise
 from abc import *
 import random
 
 
 class Noise:
     """
-    Generic Noise class, any future ones can inherit from this one.
+    Generic Noise class, any future ones should inherit from this one.
     Each noise has to be assigned to a correlative Task_id
     """
 
@@ -22,7 +21,7 @@ class Noise:
 
 class GaussianNoise(Noise):
     """
-    Specific class for gaussian noises
+    Specific class for gaussian noises, requires a mean and standard deviation
     """
 
     def __init__(self, task_id, mean, std):
