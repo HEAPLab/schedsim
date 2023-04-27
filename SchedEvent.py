@@ -35,11 +35,8 @@ class ScheduleEvent:
             self.deadline_sort = ds
         # Noises
         self.dynamic_wcet = task.wcet
-        if _type == 'A':  # This if is to avoid noise generation when it isn't needed
-            for noise in task.noises:
-                self.dynamic_wcet = self.dynamic_wcet + noise.generate()
-
+        for noise in task.noises:
+            self.dynamic_wcet = self.dynamic_wcet + noise.generate()
         self.finished = False
-
     def set_type(self, _type):
         self.type = _type
