@@ -31,10 +31,13 @@ Here is an example of an input, specifically the FIFO one, which can be found wi
   * **periodic**: to specify the given task has multiple, periodic, activations
   * **period**: in case the task is periodic, this specifies the frequency of activation (e.g. period =20 means it will activate every 20, 0->20->40...)
   * **wcet**: this specifies the worst case execution time of the task, the time it will take for it to be completed
-* **Noises** influence the wcet of a task making it random. They can be added through _\<noises>_ tag. Within it, you must specify the **type** attribute:
+* **Multiprocessor** is handled through the _\<cpus>_ tag, to add processors simply add _\<pe>_ tags and adjust their speed through the **speed** attribute
+* **Noises** are made to simulate non-deterministic finish times, by **subtracting** a random value from the wcet. They can be added through _\<noises>_ tag. Within it, you must specify the **type** attribute:
   * **uniform**: adds to wcet a value extracted from a uniform distribution having its ends described by the values of the attributes **low_end** and **high_end**
   * **normal**: adds to wcet a value extracted from a gaussian distribution having mean and std defined by the values of the attributes **mean** and **std**
-* **Multiprocessor** is handled through the _\<cpus>_ tag, to add processors simply add _\<pe>_ tags and adjust their speed through the **speed** attribute
+
+To put it into perspective if I have a task having wcet 20, but I observe that it finishes in average in only 16 clock cycles, I should add a Gaussian Noise having mean 4 and deviation equal to the one i have observed.
+**Remember**: the noise can't reduce the wcet under 1 and can't make it exceed the original value.
 
 ### Supported algorithms
 To run a specific algorithm, insert its initials in the **algortihm** attribute in the _\<scheduler>_ tag. 
@@ -48,7 +51,7 @@ Currently supported ones are:
 - **PFP** partitioned fixed priority
 - **PEDF** partitioned edf
 
-Examples inputs for each of them are present within examples\Inputs
+Example inputs for each of them are present within examples\Inputs
 ## Contributors
 - Federico Reghenzani
 - Francesco Ratti
