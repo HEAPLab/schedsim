@@ -246,9 +246,7 @@ class NonPreemptive(Scheduler):
             if event.timestamp == time and self.cores[int(event.processor)].executing is None:
                 self.output_file.add_scheduler_event(event)
                 self.cores[int(event.processor)].executing = event
-                print("Dinamico è: "+str(event.dynamic_wcet)+"teoricamente siamo al tempo " + str(event.timestamp))
                 finish_timestamp = event.timestamp + event.dynamic_wcet
-                print("Finish_timestamp: "+str( finish_timestamp)+" event is "+str(event.task.id))
 
                 finish_event = SchedEvent.ScheduleEvent(
                     finish_timestamp, event.task, SchedEvent.EventType.finish.value, event.deadline_sort)
